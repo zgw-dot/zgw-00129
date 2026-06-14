@@ -48,7 +48,7 @@ router.get('/:id', (req: Request, res: Response) => {
   }
 
   const versions = db.prepare(`
-    SELECT v.*, u.display_name as creator_name
+    SELECT v.*, u.display_name as creator_name, u.role as created_by_role
     FROM clause_versions v LEFT JOIN users u ON v.created_by = u.id
     WHERE v.clause_id = ? ORDER BY v.version_number DESC
   `).all(req.params.id);
@@ -66,7 +66,7 @@ router.get('/:id', (req: Request, res: Response) => {
 
 router.get('/:id/versions', (req: Request, res: Response) => {
   const versions = db.prepare(`
-    SELECT v.*, u.display_name as creator_name
+    SELECT v.*, u.display_name as creator_name, u.role as created_by_role
     FROM clause_versions v LEFT JOIN users u ON v.created_by = u.id
     WHERE v.clause_id = ? ORDER BY v.version_number DESC
   `).all(req.params.id);
@@ -329,11 +329,6 @@ router.post('/:id/rollback', requireRole('admin'), (req: Request, res: Response)
   const clause = db.prepare('SELECT * FROM clauses WHERE id = ?').get(req.params.id) as any;
   if (!clause) { res.status(404).json({ error: '条款不存在' }); return; }
 
-  if (target_version >= clause.current_version) {
-    res.status(400).json({ error: `目标版本 v${target_version} 不小于当前版本 v${clause.current_version}，无需回滚` });
-    return;
-  }
-
   const targetVersion = db.prepare('SELECT * FROM clause_versions WHERE clause_id = ? AND version_number = ?')
     .get(req.params.id, target_version);
   if (!targetVersion) {
@@ -341,6 +336,11 @@ router.post('/:id/rollback', requireRole('admin'), (req: Request, res: Response)
       error: `版本 v${target_version} 不存在，无法回滚`,
       detail: `当前条款存在的最高历史版本为 v${clause.current_version}`
     });
+    return;
+  }
+
+  if (target_version >= clause.current_version) {
+    res.status(400).json({ error: `目标版本 v${target_version} 不小于当前版本 v${clause.current_version}，无需回滚` });
     return;
   }
 

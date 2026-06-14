@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 const { Title, Paragraph } = Typography;
 
 const ClausesPage: React.FC = () => {
-  const { contractId } = useParams<{ contractId: string }();
+  const { contractId } = useParams<{ contractId: string }>();
   const navigate = useNavigate();
   const [data, setData] = useState<Clause[]>([]);
   const [loading, setLoading] = useState(false);

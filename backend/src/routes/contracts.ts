@@ -55,8 +55,17 @@ router.delete('/:id', requireRole('admin'), (req: Request, res: Response) => {
 });
 
 router.post('/:id/import', requireRole('admin', 'legal'), (req: Request, res: Response) => {
-  const { clauses } = req.body;
   const contractId = req.params.id;
+  let clauses: any[];
+
+  if (Array.isArray(req.body)) {
+    clauses = req.body;
+  } else if (Array.isArray(req.body.clauses)) {
+    clauses = req.body.clauses;
+  } else {
+    res.status(400).json({ error: '导入数据格式错误：需要条款数组或包含 clauses 字段的对象' });
+    return;
+  }
 
   const contract = db.prepare('SELECT * FROM contracts WHERE id = ?').get(contractId);
   if (!contract) {

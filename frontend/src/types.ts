@@ -52,6 +52,7 @@ export interface ClauseVersion {
   created_at: string;
   change_summary: string;
   creator_name?: string;
+  created_by_role?: UserRole;
 }
 
 export interface Suggestion {

@@ -8,6 +8,7 @@
     "install:all": "npm run install:backend && npm run install:frontend",
     "seed": "cd backend && npm run seed",
     "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm run dev"
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "start \"后端服务\" cmd /c \"cd backend && npm run dev\" && start \"前端服务\" cmd /c \"cd frontend && npm run dev\""
   }
 }

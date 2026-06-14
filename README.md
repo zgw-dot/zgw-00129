@@ -162,7 +162,7 @@ zgw-00129/
    - 已处理建议的决策原因、决策人 **完全一致**
    - 操作日志条数与内容 **完全一致**
 
-**原理**：SQLite 使用 WAL 模式 + 所有写操作使用事务，写入即 fsync 落盘。数据库文件位于 `backend/data/contract-review.db`，可直接复制备份。
+**原理**：sql.js 定时导出数据库到磁盘文件 + Node.js `beforeExit` / `SIGINT` 钩子确保退出前持久化。数据库文件位于 `backend/data/contract-review.db`，可直接复制备份。
 
 ---
 

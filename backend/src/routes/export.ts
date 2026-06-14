@@ -43,7 +43,7 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
   const clauseIds = (clauses as any[]).map(c => c.id);
 
   const versions = clauseIds.length > 0 ? db.prepare(`
-    SELECT v.*, u.display_name as creator_name
+    SELECT v.*, u.display_name as creator_name, u.role as created_by_role
     FROM clause_versions v LEFT JOIN users u ON v.created_by = u.id
     WHERE v.clause_id IN (${clauseIds.map(() => '?').join(',')})
     ORDER BY v.clause_id, v.version_number DESC
@@ -96,7 +96,7 @@ router.get('/clause/:id/version-history', (req: Request, res: Response) => {
   if (!clause) { res.status(404).json({ error: '条款不存在' }); return; }
 
   const versions = db.prepare(`
-    SELECT v.*, u.display_name as creator_name
+    SELECT v.*, u.display_name as creator_name, u.role as created_by_role
     FROM clause_versions v LEFT JOIN users u ON v.created_by = u.id
     WHERE v.clause_id = ? ORDER BY v.version_number DESC
   `).all(req.params.id);
