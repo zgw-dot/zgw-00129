@@ -197,12 +197,92 @@ export async function initDatabase() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
+    CREATE TABLE IF NOT EXISTS countersign_rounds (
+      id TEXT PRIMARY KEY,
+      contract_id TEXT REFERENCES contracts(id) ON DELETE CASCADE,
+      round_name TEXT NOT NULL,
+      description TEXT,
+      deadline DATETIME,
+      created_by TEXT REFERENCES users(id),
+      status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'withdrawn')),
+      withdraw_reason TEXT,
+      withdrawn_at DATETIME,
+      withdrawn_by TEXT REFERENCES users(id),
+      completed_at DATETIME,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS countersign_participants (
+      id TEXT PRIMARY KEY,
+      round_id TEXT REFERENCES countersign_rounds(id) ON DELETE CASCADE,
+      user_id TEXT REFERENCES users(id),
+      is_replaced INTEGER NOT NULL DEFAULT 0,
+      replaced_by TEXT REFERENCES users(id),
+      replaced_at DATETIME,
+      replaced_reason TEXT,
+      original_participant_id TEXT REFERENCES countersign_participants(id),
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS countersign_clauses (
+      id TEXT PRIMARY KEY,
+      round_id TEXT REFERENCES countersign_rounds(id) ON DELETE CASCADE,
+      clause_id TEXT REFERENCES clauses(id) ON DELETE CASCADE,
+      clause_version_at_create INTEGER NOT NULL,
+      needs_rereview INTEGER NOT NULL DEFAULT 0,
+      rereview_reason TEXT,
+      invalidated INTEGER NOT NULL DEFAULT 0,
+      invalidation_reason TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(round_id, clause_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS countersign_conclusions (
+      id TEXT PRIMARY KEY,
+      round_id TEXT REFERENCES countersign_rounds(id) ON DELETE CASCADE,
+      participant_id TEXT REFERENCES countersign_participants(id) ON DELETE CASCADE,
+      user_id TEXT REFERENCES users(id),
+      clause_id TEXT REFERENCES clauses(id) ON DELETE CASCADE,
+      conclusion TEXT CHECK (conclusion IN ('pass', 'reject', 'need_more_info')),
+      comment TEXT,
+      acknowledged_at DATETIME,
+      concluded_at DATETIME,
+      original_version INTEGER,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(round_id, participant_id, clause_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS countersign_history (
+      id TEXT PRIMARY KEY,
+      round_id TEXT REFERENCES countersign_rounds(id) ON DELETE CASCADE,
+      action TEXT NOT NULL CHECK (action IN (
+        'create_round', 'acknowledge', 'conclude', 'withdraw_round',
+        'replace_participant', 'clause_version_change', 'rereview_requested'
+      )),
+      user_id TEXT REFERENCES users(id),
+      user_role TEXT,
+      details TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
     CREATE INDEX IF NOT EXISTS idx_clauses_contract ON clauses(contract_id);
     CREATE INDEX IF NOT EXISTS idx_clause_versions_clause ON clause_versions(clause_id);
     CREATE INDEX IF NOT EXISTS idx_suggestions_clause ON suggestions(clause_id);
     CREATE INDEX IF NOT EXISTS idx_suggestions_status ON suggestions(status);
     CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
     CREATE INDEX IF NOT EXISTS idx_drafts_clause_user ON suggestion_drafts(clause_id, user_id);
+    CREATE INDEX IF NOT EXISTS idx_countersign_rounds_contract ON countersign_rounds(contract_id);
+    CREATE INDEX IF NOT EXISTS idx_countersign_rounds_status ON countersign_rounds(status);
+    CREATE INDEX IF NOT EXISTS idx_countersign_participants_round ON countersign_participants(round_id);
+    CREATE INDEX IF NOT EXISTS idx_countersign_participants_user ON countersign_participants(user_id);
+    CREATE INDEX IF NOT EXISTS idx_countersign_clauses_round ON countersign_clauses(round_id);
+    CREATE INDEX IF NOT EXISTS idx_countersign_clauses_clause ON countersign_clauses(clause_id);
+    CREATE INDEX IF NOT EXISTS idx_countersign_conclusions_round ON countersign_conclusions(round_id);
+    CREATE INDEX IF NOT EXISTS idx_countersign_conclusions_user ON countersign_conclusions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_countersign_history_round ON countersign_history(round_id);
   `);
 
   try {

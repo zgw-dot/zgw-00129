@@ -3,6 +3,7 @@ import db from '../database';
 import { v4 as uuidv4 } from 'uuid';
 import { authMiddleware, requireRole } from '../middleware';
 import { createAuditLog } from '../audit';
+import { handleClauseVersionChange } from './countersigns';
 
 const router = Router();
 
@@ -306,14 +307,20 @@ router.post('/:id/suggestions/:sid/merge', requireRole('admin', 'legal'), (req: 
     return;
   }
 
+  const oldVersion = clause.current_version;
+  handleClauseVersionChange(
+    clause.id, oldVersion, newVersion,
+    'merge_suggestion', reason, req.user!.userId, req.user!.role
+  );
+
   createAuditLog('merge_suggestion', 'suggestion', req.params.sid, req.user!.userId, req.user!.role, {
     clause_id: clause.id,
-    old_version: clause.current_version,
+    old_version: oldVersion,
     new_version: newVersion,
     reason
   });
   createAuditLog('new_version', 'clause', clause.id, req.user!.userId, req.user!.role, {
-    from_version: clause.current_version,
+    from_version: oldVersion,
     to_version: newVersion,
     from_suggestion: req.params.sid,
     reason
@@ -378,15 +385,21 @@ router.post('/:id/rollback', requireRole('admin'), (req: Request, res: Response)
     return;
   }
 
+  const oldVersion = clause.current_version;
+  handleClauseVersionChange(
+    clause.id, oldVersion, newVersion,
+    'rollback', `回滚至 v${target_version}：${reason}`, req.user!.userId, req.user!.role
+  );
+
   createAuditLog('rollback', 'clause', clause.id, req.user!.userId, req.user!.role, {
-    from_version: clause.current_version,
+    from_version: oldVersion,
     to_version: newVersion,
     rollback_target: target_version,
     reason
   });
 
   const updatedClause = db.prepare('SELECT * FROM clauses WHERE id = ?').get(clause.id);
-  res.json({ clause: updatedClause, new_version: newVersion, rollback_from: clause.current_version, rollback_to: target_version });
+  res.json({ clause: updatedClause, new_version: newVersion, rollback_from: oldVersion, rollback_to: target_version });
 });
 
 router.get('/:id/suggestions', (req: Request, res: Response) => {

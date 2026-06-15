@@ -1,5 +1,8 @@
 import axios from 'axios';
-import { LoginResponse, Contract, Clause, Suggestion, AuditLog, ClauseVersion, User, SuggestionDraft } from './types';
+import {
+  LoginResponse, Contract, Clause, Suggestion, AuditLog, ClauseVersion, User, SuggestionDraft,
+  CountersignRound, CountersignRoundDetail, CountersignParticipant
+} from './types';
 
 const API_BASE = '/api';
 
@@ -150,6 +153,55 @@ export const reportsApi = {
     api.get(`/reports/contract/${contractId}/export`, { responseType: 'blob' }).then(r => r.data),
   clauseHistory: (clauseId: string) =>
     api.get(`/reports/clause/${clauseId}/version-history`).then(r => r.data)
+};
+
+export interface CreateCountersignRequest {
+  contract_id: string;
+  round_name: string;
+  description?: string;
+  deadline?: string;
+  participant_ids: string[];
+  clause_ids: string[];
+}
+
+export interface CountersignConcludeRequest {
+  clause_id: string;
+  conclusion: 'pass' | 'reject' | 'need_more_info';
+  comment?: string;
+}
+
+export interface ReplaceParticipantRequest {
+  old_participant_id: string;
+  new_user_id: string;
+  reason: string;
+}
+
+export interface RereviewRequest {
+  clause_ids: string[];
+  reason: string;
+}
+
+export const countersignApi = {
+  create: (data: CreateCountersignRequest) =>
+    api.post<CountersignRound>('/countersigns', data).then(r => r.data),
+  listByContract: (contractId: string) =>
+    api.get<CountersignRound[]>(`/countersigns/contract/${contractId}`).then(r => r.data),
+  listMine: () =>
+    api.get<CountersignRound[]>('/countersigns/mine').then(r => r.data),
+  get: (roundId: string) =>
+    api.get<CountersignRoundDetail>(`/countersigns/${roundId}`).then(r => r.data),
+  acknowledge: (roundId: string) =>
+    api.post(`/countersigns/${roundId}/acknowledge`).then(r => r.data),
+  conclude: (roundId: string, data: CountersignConcludeRequest) =>
+    api.post(`/countersigns/${roundId}/conclude`, data).then(r => r.data),
+  withdraw: (roundId: string, reason: string) =>
+    api.post<CountersignRound>(`/countersigns/${roundId}/withdraw`, { reason }).then(r => r.data),
+  replaceParticipant: (roundId: string, data: ReplaceParticipantRequest) =>
+    api.post<{ new_participant: CountersignParticipant; old_conclusions_preserved: number }>(
+      `/countersigns/${roundId}/replace-participant`, data
+    ).then(r => r.data),
+  rerequestRereview: (roundId: string, data: RereviewRequest) =>
+    api.post(`/countersigns/${roundId}/rerequest-rereview`, data).then(r => r.data)
 };
 
 export default api;

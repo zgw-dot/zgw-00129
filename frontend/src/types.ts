@@ -177,3 +177,139 @@ export const EXCLUSIVE_LABELS: Record<ExclusiveRole, string> = {
   legal: '法务专属',
   business: '业务专属'
 };
+
+export type CountersignRoundStatus = 'active' | 'completed' | 'withdrawn';
+export type CountersignConclusion = 'pass' | 'reject' | 'need_more_info';
+export type CountersignHistoryAction =
+  | 'create_round' | 'acknowledge' | 'conclude' | 'withdraw_round'
+  | 'replace_participant' | 'clause_version_change' | 'rereview_requested';
+
+export interface CountersignRound {
+  id: string;
+  contract_id: string;
+  contract_name?: string;
+  round_name: string;
+  description?: string;
+  deadline?: string | null;
+  created_by: string;
+  creator_name?: string;
+  status: CountersignRoundStatus;
+  withdraw_reason?: string | null;
+  withdrawn_at?: string | null;
+  withdrawn_by?: string | null;
+  withdrawer_name?: string | null;
+  completed_at?: string | null;
+  created_at: string;
+  updated_at: string;
+  participant_count?: number;
+  clause_count?: number;
+  concluded_count?: number;
+  acknowledged_count?: number;
+  my_concluded?: number;
+  my_acknowledged?: number;
+}
+
+export interface CountersignParticipant {
+  id: string;
+  round_id: string;
+  user_id: string;
+  username?: string;
+  display_name?: string;
+  role?: UserRole;
+  is_replaced: number | boolean;
+  replaced_by?: string | null;
+  replaced_at?: string | null;
+  replaced_reason?: string | null;
+  original_participant_id?: string | null;
+  original_user_id?: string | null;
+  original_user_name?: string | null;
+  created_at: string;
+}
+
+export interface CountersignClause {
+  id: string;
+  round_id: string;
+  clause_id: string;
+  clause_number?: string;
+  title?: string;
+  clause_version_at_create: number;
+  current_version?: number;
+  content?: string;
+  risk_level?: RiskLevel;
+  needs_rereview: number | boolean;
+  rereview_reason?: string | null;
+  invalidated: number | boolean;
+  invalidation_reason?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CountersignConclusionItem {
+  id: string;
+  round_id: string;
+  participant_id: string;
+  user_id: string;
+  user_name?: string;
+  participant_name?: string;
+  clause_id: string;
+  conclusion?: CountersignConclusion | null;
+  comment?: string | null;
+  acknowledged_at?: string | null;
+  concluded_at?: string | null;
+  original_version?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CountersignHistoryItem {
+  id: string;
+  round_id: string;
+  action: CountersignHistoryAction;
+  user_id?: string | null;
+  user_role?: string | null;
+  user_name?: string | null;
+  details: Record<string, any> | null;
+  created_at: string;
+}
+
+export interface CountersignRoundDetail extends CountersignRound {
+  participants: CountersignParticipant[];
+  clauses: CountersignClause[];
+  conclusions: CountersignConclusionItem[];
+  history: CountersignHistoryItem[];
+  my_participation: CountersignParticipant | null;
+}
+
+export const COUNTERSIGN_STATUS_COLORS: Record<CountersignRoundStatus, string> = {
+  active: 'blue',
+  completed: 'green',
+  withdrawn: 'default'
+};
+
+export const COUNTERSIGN_STATUS_LABELS: Record<CountersignRoundStatus, string> = {
+  active: '进行中',
+  completed: '已完成',
+  withdrawn: '已撤回'
+};
+
+export const COUNTERSIGN_CONCLUSION_COLORS: Record<string, string> = {
+  pass: 'green',
+  reject: 'red',
+  need_more_info: 'orange'
+};
+
+export const COUNTERSIGN_CONCLUSION_LABELS: Record<string, string> = {
+  pass: '通过',
+  reject: '退回',
+  need_more_info: '需补充'
+};
+
+export const COUNTERSIGN_HISTORY_ACTION_LABELS: Record<CountersignHistoryAction, string> = {
+  create_round: '发起会签',
+  acknowledge: '签收',
+  conclude: '提交结论',
+  withdraw_round: '撤回会签',
+  replace_participant: '替换参与人',
+  clause_version_change: '条款版本变更',
+  rereview_requested: '请求重审'
+};

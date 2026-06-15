@@ -1,0 +1,1157 @@
+{
+  "exported_at": "2026-06-15T08:07:14.110Z",
+  "contract": {
+    "id": "2a49d735-ddd1-43c7-b9d3-747827b627e6",
+    "name": "【E2E测试】会签流程验证合同",
+    "description": "用于验证会签完整流程：发起、签收、退回、撤回、版本变更联动、导出核对",
+    "created_at": "2026-06-15 08:07:13",
+    "can_be_marked_complete": false
+  },
+  "clauses": [
+    {
+      "id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+      "contract_id": "2a49d735-ddd1-43c7-b9d3-747827b627e6",
+      "clause_number": "1",
+      "title": "定义（修订版）",
+      "content": "\"本协议\"指双方签署的合同及所有附件，含补充协议。E2E修订版。",
+      "risk_level": "low",
+      "current_version": 2,
+      "created_at": "2026-06-15 08:07:13",
+      "updated_at": "2026-06-15 08:07:14",
+      "pending_count": 0,
+      "versions": [
+        {
+          "id": "0632e946-a92d-4345-9b76-e30978b70dc2",
+          "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+          "version_number": 2,
+          "title": "定义（修订版）",
+          "content": "\"本协议\"指双方签署的合同及所有附件，含补充协议。E2E修订版。",
+          "risk_level": "low",
+          "created_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+          "created_at": "2026-06-15 08:07:14",
+          "change_summary": "导入更新",
+          "creator_name": "系统管理员",
+          "created_by_role": "admin"
+        },
+        {
+          "id": "0a4e0fb2-6ab0-487f-8fbd-00600ec2cd70",
+          "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+          "version_number": 1,
+          "title": "定义",
+          "content": "\"本协议\"指双方签署的合同及全部附件。E2E会签测试用。",
+          "risk_level": "low",
+          "created_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+          "created_at": "2026-06-15 08:07:13",
+          "change_summary": "初始导入",
+          "creator_name": "系统管理员",
+          "created_by_role": "admin"
+        }
+      ],
+      "suggestions": []
+    },
+    {
+      "id": "4e913907-8617-4718-a5fb-4bf07f7bbdf8",
+      "contract_id": "2a49d735-ddd1-43c7-b9d3-747827b627e6",
+      "clause_number": "2.1",
+      "title": "服务范围",
+      "content": "乙方应依附件A提供专业咨询服务，符合行业一般标准。",
+      "risk_level": "medium",
+      "current_version": 1,
+      "created_at": "2026-06-15 08:07:13",
+      "updated_at": "2026-06-15 08:07:13",
+      "pending_count": 0,
+      "versions": [
+        {
+          "id": "fd09f0b7-0340-4a74-8d75-97820ad1d401",
+          "clause_id": "4e913907-8617-4718-a5fb-4bf07f7bbdf8",
+          "version_number": 1,
+          "title": "服务范围",
+          "content": "乙方应依附件A提供专业咨询服务，符合行业一般标准。",
+          "risk_level": "medium",
+          "created_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+          "created_at": "2026-06-15 08:07:13",
+          "change_summary": "初始导入",
+          "creator_name": "系统管理员",
+          "created_by_role": "admin"
+        }
+      ],
+      "suggestions": []
+    },
+    {
+      "id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+      "contract_id": "2a49d735-ddd1-43c7-b9d3-747827b627e6",
+      "clause_number": "3.2",
+      "title": "付款条款",
+      "content": "甲方收到发票后30个工作日内支付相应款项。逾期按日万分之五付违约金。",
+      "risk_level": "high",
+      "current_version": 1,
+      "created_at": "2026-06-15 08:07:13",
+      "updated_at": "2026-06-15 08:07:13",
+      "pending_count": 0,
+      "versions": [
+        {
+          "id": "09c20ae6-cdc2-4689-8f0f-53986bb9af33",
+          "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+          "version_number": 1,
+          "title": "付款条款",
+          "content": "甲方收到发票后30个工作日内支付相应款项。逾期按日万分之五付违约金。",
+          "risk_level": "high",
+          "created_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+          "created_at": "2026-06-15 08:07:13",
+          "change_summary": "初始导入",
+          "creator_name": "系统管理员",
+          "created_by_role": "admin"
+        }
+      ],
+      "suggestions": []
+    },
+    {
+      "id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+      "contract_id": "2a49d735-ddd1-43c7-b9d3-747827b627e6",
+      "clause_number": "5.1",
+      "title": "保密义务",
+      "content": "双方对合作过程中获悉的商业秘密承担保密义务，保密期5年。",
+      "risk_level": "critical",
+      "current_version": 1,
+      "created_at": "2026-06-15 08:07:13",
+      "updated_at": "2026-06-15 08:07:13",
+      "pending_count": 0,
+      "versions": [
+        {
+          "id": "49b7ee48-5ee2-4737-bb4b-811023565e0e",
+          "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+          "version_number": 1,
+          "title": "保密义务",
+          "content": "双方对合作过程中获悉的商业秘密承担保密义务，保密期5年。",
+          "risk_level": "critical",
+          "created_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+          "created_at": "2026-06-15 08:07:13",
+          "change_summary": "初始导入",
+          "creator_name": "系统管理员",
+          "created_by_role": "admin"
+        }
+      ],
+      "suggestions": []
+    }
+  ],
+  "drafts": [],
+  "audit_logs": [
+    {
+      "id": "095252bd-f9e1-4d58-9d03-a465e0dc9887",
+      "action": "create_contract",
+      "entity_type": "contract",
+      "entity_id": "2a49d735-ddd1-43c7-b9d3-747827b627e6",
+      "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+      "user_role": "admin",
+      "details": {
+        "name": "【E2E测试】会签流程验证合同"
+      },
+      "created_at": "2026-06-15 08:07:13",
+      "user_name": "系统管理员"
+    },
+    {
+      "id": "aaf91a45-b48d-43fb-98c4-22cb89455a98",
+      "action": "import_clause_new",
+      "entity_type": "clause",
+      "entity_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+      "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+      "user_role": "admin",
+      "details": {
+        "clause_number": "1",
+        "title": "定义",
+        "risk_level": "low",
+        "import_mode": "update_by_number"
+      },
+      "created_at": "2026-06-15 08:07:13",
+      "user_name": "系统管理员"
+    },
+    {
+      "id": "01cdb109-772c-44d0-adab-d9bef3183dc5",
+      "action": "import_clause_new",
+      "entity_type": "clause",
+      "entity_id": "4e913907-8617-4718-a5fb-4bf07f7bbdf8",
+      "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+      "user_role": "admin",
+      "details": {
+        "clause_number": "2.1",
+        "title": "服务范围",
+        "risk_level": "medium",
+        "import_mode": "update_by_number"
+      },
+      "created_at": "2026-06-15 08:07:13",
+      "user_name": "系统管理员"
+    },
+    {
+      "id": "c2205519-41ef-41c4-ac79-d57b7294e3a5",
+      "action": "import_clause_new",
+      "entity_type": "clause",
+      "entity_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+      "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+      "user_role": "admin",
+      "details": {
+        "clause_number": "3.2",
+        "title": "付款条款",
+        "risk_level": "high",
+        "import_mode": "update_by_number"
+      },
+      "created_at": "2026-06-15 08:07:13",
+      "user_name": "系统管理员"
+    },
+    {
+      "id": "4c8ed2cd-4d92-4831-9b9e-576561c64434",
+      "action": "import_clause_new",
+      "entity_type": "clause",
+      "entity_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+      "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+      "user_role": "admin",
+      "details": {
+        "clause_number": "5.1",
+        "title": "保密义务",
+        "risk_level": "critical",
+        "import_mode": "update_by_number"
+      },
+      "created_at": "2026-06-15 08:07:13",
+      "user_name": "系统管理员"
+    },
+    {
+      "id": "f6bb1b4a-1305-4f3b-8ecc-3ce62816b192",
+      "action": "import_clauses",
+      "entity_type": "contract",
+      "entity_id": "2a49d735-ddd1-43c7-b9d3-747827b627e6",
+      "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+      "user_role": "admin",
+      "details": {
+        "import_mode": "update_by_number",
+        "new_count": 4,
+        "update_count": 0,
+        "skip_count": 0,
+        "block_count": 0,
+        "error_count": 0
+      },
+      "created_at": "2026-06-15 08:07:13",
+      "user_name": "系统管理员"
+    },
+    {
+      "id": "4d4dcd85-6b94-4cea-b42f-a6b7586731eb",
+      "action": "import_clause_update",
+      "entity_type": "clause",
+      "entity_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+      "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+      "user_role": "admin",
+      "details": {
+        "clause_number": "1",
+        "old_title": "定义",
+        "new_title": "定义（修订版）",
+        "old_version": 1,
+        "new_version": 2,
+        "import_mode": "update_by_number"
+      },
+      "created_at": "2026-06-15 08:07:14",
+      "user_name": "系统管理员"
+    },
+    {
+      "id": "347c7ced-7612-4cee-8d83-da8b280ccd64",
+      "action": "import_clauses",
+      "entity_type": "contract",
+      "entity_id": "2a49d735-ddd1-43c7-b9d3-747827b627e6",
+      "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+      "user_role": "admin",
+      "details": {
+        "import_mode": "update_by_number",
+        "new_count": 0,
+        "update_count": 1,
+        "skip_count": 0,
+        "block_count": 0,
+        "error_count": 0
+      },
+      "created_at": "2026-06-15 08:07:14",
+      "user_name": "系统管理员"
+    }
+  ],
+  "countersign": {
+    "rounds": [
+      {
+        "id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+        "contract_id": "2a49d735-ddd1-43c7-b9d3-747827b627e6",
+        "round_name": "法务+业务联合会签（E2E测试）",
+        "description": "这是一轮端到端测试用的会签回合，验证签收、退回、撤回等流程。",
+        "deadline": "2026-06-22T08:07:13.975Z",
+        "created_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+        "status": "withdrawn",
+        "withdraw_reason": "E2E测试：撤回回合，验证状态变更与历史留存",
+        "withdrawn_at": "2026-06-15 08:07:14",
+        "withdrawn_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+        "completed_at": null,
+        "created_at": "2026-06-15 08:07:13",
+        "updated_at": "2026-06-15 08:07:14",
+        "creator_name": "系统管理员",
+        "withdrawer_name": "系统管理员",
+        "participants": [
+          {
+            "id": "8edef754-a707-4173-8742-c3d147302846",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "is_replaced": 1,
+            "replaced_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+            "replaced_at": "2026-06-15 08:07:14",
+            "replaced_reason": "E2E测试：模拟法务1离职，由法务2接手（旧意见保留）",
+            "original_participant_id": null,
+            "created_at": "2026-06-15 08:07:13",
+            "username": "legal1",
+            "display_name": "法务-张明",
+            "role": "legal",
+            "original_user_name": null
+          },
+          {
+            "id": "8e4eb8cf-46a1-4b44-97a4-5837b5418163",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "is_replaced": 0,
+            "replaced_by": null,
+            "replaced_at": null,
+            "replaced_reason": null,
+            "original_participant_id": null,
+            "created_at": "2026-06-15 08:07:13",
+            "username": "business1",
+            "display_name": "业务-王芳",
+            "role": "business",
+            "original_user_name": null
+          },
+          {
+            "id": "317d642a-4f23-4f27-9c4d-790c1cdff8e4",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "user_id": "9013f6f2-aa8f-4b5f-a0a6-2f425e567996",
+            "is_replaced": 0,
+            "replaced_by": null,
+            "replaced_at": null,
+            "replaced_reason": null,
+            "original_participant_id": "8edef754-a707-4173-8742-c3d147302846",
+            "created_at": "2026-06-15 08:07:14",
+            "username": "legal2",
+            "display_name": "法务-李华",
+            "role": "legal",
+            "original_user_name": "法务-张明"
+          }
+        ],
+        "clauses": [
+          {
+            "id": "2e07ed76-753d-42b3-b4d4-b27d2363c9bc",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+            "clause_version_at_create": 1,
+            "needs_rereview": 1,
+            "rereview_reason": "条款版本变更：import_update（v1→v2）：导入更新",
+            "invalidated": 0,
+            "invalidation_reason": null,
+            "created_at": "2026-06-15 08:07:13",
+            "updated_at": "2026-06-15 08:07:14",
+            "clause_number": "1",
+            "title": "定义（修订版）"
+          },
+          {
+            "id": "0dc6a78c-f2d5-4900-b283-1c6394f5d750",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+            "clause_version_at_create": 1,
+            "needs_rereview": 0,
+            "rereview_reason": null,
+            "invalidated": 0,
+            "invalidation_reason": null,
+            "created_at": "2026-06-15 08:07:13",
+            "updated_at": "2026-06-15 08:07:13",
+            "clause_number": "3.2",
+            "title": "付款条款"
+          },
+          {
+            "id": "ef55f877-1021-46d5-ba52-1076566645e7",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+            "clause_version_at_create": 1,
+            "needs_rereview": 0,
+            "rereview_reason": null,
+            "invalidated": 0,
+            "invalidation_reason": null,
+            "created_at": "2026-06-15 08:07:13",
+            "updated_at": "2026-06-15 08:07:13",
+            "clause_number": "5.1",
+            "title": "保密义务"
+          }
+        ],
+        "conclusions": [
+          {
+            "id": "4a48e45c-650e-452e-a5ae-bc85d2847bb5",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "participant_id": "8edef754-a707-4173-8742-c3d147302846",
+            "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+            "conclusion": "pass",
+            "comment": "定义条款无问题。",
+            "acknowledged_at": "2026-06-15 08:07:13",
+            "concluded_at": "2026-06-15 08:07:13",
+            "original_version": 1,
+            "created_at": "2026-06-15 08:07:13",
+            "updated_at": "2026-06-15 08:07:13",
+            "user_name": "法务-张明",
+            "participant_name": "法务-张明"
+          },
+          {
+            "id": "0f5cbda9-42bb-4d54-b749-b1aedad9f39f",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "participant_id": "8edef754-a707-4173-8742-c3d147302846",
+            "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+            "conclusion": "reject",
+            "comment": "付款违约金条款过于严苛，日万分之五折算年化18%，建议调整为日万分之二或参考LPR。",
+            "acknowledged_at": "2026-06-15 08:07:13",
+            "concluded_at": "2026-06-15 08:07:13",
+            "original_version": 1,
+            "created_at": "2026-06-15 08:07:13",
+            "updated_at": "2026-06-15 08:07:13",
+            "user_name": "法务-张明",
+            "participant_name": "法务-张明"
+          },
+          {
+            "id": "e55342ee-8fb9-4041-be99-a0ddf8b6f53b",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "participant_id": "8e4eb8cf-46a1-4b44-97a4-5837b5418163",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+            "conclusion": null,
+            "comment": null,
+            "acknowledged_at": "2026-06-15 08:07:13",
+            "concluded_at": null,
+            "original_version": 1,
+            "created_at": "2026-06-15 08:07:13",
+            "updated_at": "2026-06-15 08:07:13",
+            "user_name": "业务-王芳",
+            "participant_name": "业务-王芳"
+          },
+          {
+            "id": "a9085b09-7e09-4352-97a5-e112ef896bd6",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "participant_id": "8edef754-a707-4173-8742-c3d147302846",
+            "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+            "conclusion": "need_more_info",
+            "comment": "需补充保密信息具体范围清单。",
+            "acknowledged_at": "2026-06-15 08:07:13",
+            "concluded_at": "2026-06-15 08:07:14",
+            "original_version": 1,
+            "created_at": "2026-06-15 08:07:13",
+            "updated_at": "2026-06-15 08:07:14",
+            "user_name": "法务-张明",
+            "participant_name": "法务-张明"
+          },
+          {
+            "id": "e3001d6b-de17-4fe2-89b7-d66ad9f9023e",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "participant_id": "8e4eb8cf-46a1-4b44-97a4-5837b5418163",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+            "conclusion": null,
+            "comment": "业务侧认可。\n\n[条款版本变更：v1→v2，原因：导入更新]",
+            "acknowledged_at": "2026-06-15 08:07:13",
+            "concluded_at": null,
+            "original_version": 2,
+            "created_at": "2026-06-15 08:07:13",
+            "updated_at": "2026-06-15 08:07:14",
+            "user_name": "业务-王芳",
+            "participant_name": "业务-王芳"
+          },
+          {
+            "id": "99159835-95b8-490e-bb70-72274bc9e1ce",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "participant_id": "8e4eb8cf-46a1-4b44-97a4-5837b5418163",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+            "conclusion": "need_more_info",
+            "comment": "请财务同学确认付款周期。",
+            "acknowledged_at": "2026-06-15 08:07:13",
+            "concluded_at": "2026-06-15 08:07:14",
+            "original_version": 1,
+            "created_at": "2026-06-15 08:07:13",
+            "updated_at": "2026-06-15 08:07:14",
+            "user_name": "业务-王芳",
+            "participant_name": "业务-王芳"
+          },
+          {
+            "id": "82df72d3-6157-4a77-9467-6449756cce2c",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "participant_id": "317d642a-4f23-4f27-9c4d-790c1cdff8e4",
+            "user_id": "9013f6f2-aa8f-4b5f-a0a6-2f425e567996",
+            "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+            "conclusion": null,
+            "comment": "[条款版本变更：v1→v2，原因：导入更新]",
+            "acknowledged_at": "2026-06-15 08:07:14",
+            "concluded_at": null,
+            "original_version": 2,
+            "created_at": "2026-06-15 08:07:14",
+            "updated_at": "2026-06-15 08:07:14",
+            "user_name": "法务-李华",
+            "participant_name": "法务-李华"
+          },
+          {
+            "id": "7446dc09-46d0-4d4a-9205-3777f9c0b8c4",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "participant_id": "317d642a-4f23-4f27-9c4d-790c1cdff8e4",
+            "user_id": "9013f6f2-aa8f-4b5f-a0a6-2f425e567996",
+            "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+            "conclusion": "pass",
+            "comment": "法务2复核：违约金条款风险在可控范围。",
+            "acknowledged_at": "2026-06-15 08:07:14",
+            "concluded_at": "2026-06-15 08:07:14",
+            "original_version": 1,
+            "created_at": "2026-06-15 08:07:14",
+            "updated_at": "2026-06-15 08:07:14",
+            "user_name": "法务-李华",
+            "participant_name": "法务-李华"
+          },
+          {
+            "id": "6d506346-b5c0-42b0-b34d-80b58263f84e",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "participant_id": "317d642a-4f23-4f27-9c4d-790c1cdff8e4",
+            "user_id": "9013f6f2-aa8f-4b5f-a0a6-2f425e567996",
+            "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+            "conclusion": "need_more_info",
+            "comment": "",
+            "acknowledged_at": "2026-06-15 08:07:14",
+            "concluded_at": "2026-06-15 08:07:14",
+            "original_version": 1,
+            "created_at": "2026-06-15 08:07:14",
+            "updated_at": "2026-06-15 08:07:14",
+            "user_name": "法务-李华",
+            "participant_name": "法务-李华"
+          }
+        ],
+        "history": [
+          {
+            "id": "0446186e-323a-4d30-a923-e89004d89189",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "create_round",
+            "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+            "user_role": "admin",
+            "details": {
+              "round_name": "法务+业务联合会签（E2E测试）",
+              "participant_count": 2,
+              "clause_count": 3,
+              "deadline": "2026-06-22T08:07:13.975Z"
+            },
+            "created_at": "2026-06-15 08:07:13",
+            "user_name": "系统管理员"
+          },
+          {
+            "id": "468c7a15-d0a2-4f91-ad35-c355b9b4d25c",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "acknowledge",
+            "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "user_role": "legal",
+            "details": {
+              "clause_count": 3,
+              "results": [
+                {
+                  "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+                  "acknowledged": true,
+                  "is_new": true
+                },
+                {
+                  "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+                  "acknowledged": true,
+                  "is_new": true
+                },
+                {
+                  "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+                  "acknowledged": true,
+                  "is_new": true
+                }
+              ]
+            },
+            "created_at": "2026-06-15 08:07:13",
+            "user_name": "法务-张明"
+          },
+          {
+            "id": "3586e536-760d-4baa-b8a0-514aef0b9b43",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "acknowledge",
+            "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "user_role": "legal",
+            "details": {
+              "clause_count": 3,
+              "results": [
+                {
+                  "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+                  "acknowledged": false,
+                  "reason": "already_acknowledged"
+                },
+                {
+                  "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+                  "acknowledged": false,
+                  "reason": "already_acknowledged"
+                },
+                {
+                  "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+                  "acknowledged": false,
+                  "reason": "already_acknowledged"
+                }
+              ]
+            },
+            "created_at": "2026-06-15 08:07:13",
+            "user_name": "法务-张明"
+          },
+          {
+            "id": "e00688fb-b280-497c-86f4-5026025bc35c",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "acknowledge",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "user_role": "business",
+            "details": {
+              "clause_count": 3,
+              "results": [
+                {
+                  "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+                  "acknowledged": true,
+                  "is_new": true
+                },
+                {
+                  "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+                  "acknowledged": true,
+                  "is_new": true
+                },
+                {
+                  "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+                  "acknowledged": true,
+                  "is_new": true
+                }
+              ]
+            },
+            "created_at": "2026-06-15 08:07:13",
+            "user_name": "业务-王芳"
+          },
+          {
+            "id": "7f128ed3-2650-4b55-a19b-2458dc286106",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "conclude",
+            "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "user_role": "legal",
+            "details": {
+              "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+              "conclusion": "reject",
+              "comment": "付款违约金条款过于严苛，日万分之五折算年化18%，建议调整为日万分之二或参考LPR。",
+              "has_comment": true,
+              "version_changed_at_conclude": false,
+              "original_version": 1,
+              "current_version": 1
+            },
+            "created_at": "2026-06-15 08:07:13",
+            "user_name": "法务-张明"
+          },
+          {
+            "id": "156e9a34-76e6-4182-99fe-b56122ea31a0",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "conclude",
+            "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "user_role": "legal",
+            "details": {
+              "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+              "conclusion": "pass",
+              "comment": "定义条款无问题。",
+              "has_comment": true,
+              "version_changed_at_conclude": false,
+              "original_version": 1,
+              "current_version": 1
+            },
+            "created_at": "2026-06-15 08:07:13",
+            "user_name": "法务-张明"
+          },
+          {
+            "id": "bb7cdc0d-d1b9-452e-92cb-6d136763eda0",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "conclude",
+            "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "user_role": "legal",
+            "details": {
+              "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+              "conclusion": "need_more_info",
+              "comment": "需补充保密信息具体范围清单。",
+              "has_comment": true,
+              "version_changed_at_conclude": false,
+              "original_version": 1,
+              "current_version": 1
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "法务-张明"
+          },
+          {
+            "id": "5a0f38db-ea3b-4872-9bbe-6f6be354b232",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "conclude",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "user_role": "business",
+            "details": {
+              "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+              "conclusion": "pass",
+              "comment": "业务侧认可。",
+              "has_comment": true,
+              "version_changed_at_conclude": false,
+              "original_version": 1,
+              "current_version": 1
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "业务-王芳"
+          },
+          {
+            "id": "c0cde898-5f8b-4124-a7be-bb887720b310",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "conclude",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "user_role": "business",
+            "details": {
+              "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+              "conclusion": "need_more_info",
+              "comment": "请财务同学确认付款周期。",
+              "has_comment": true,
+              "version_changed_at_conclude": false,
+              "original_version": 1,
+              "current_version": 1
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "业务-王芳"
+          },
+          {
+            "id": "08ba37e9-8c4c-44c4-b242-d2c90f62f796",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "replace_participant",
+            "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+            "user_role": "admin",
+            "details": {
+              "old_participant_id": "8edef754-a707-4173-8742-c3d147302846",
+              "old_user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+              "new_user_id": "9013f6f2-aa8f-4b5f-a0a6-2f425e567996",
+              "reason": "E2E测试：模拟法务1离职，由法务2接手（旧意见保留）",
+              "old_conclusions_preserved": 3
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "系统管理员"
+          },
+          {
+            "id": "4b432b64-d56e-40eb-8440-86328985837e",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "acknowledge",
+            "user_id": "9013f6f2-aa8f-4b5f-a0a6-2f425e567996",
+            "user_role": "legal",
+            "details": {
+              "clause_count": 3,
+              "results": [
+                {
+                  "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+                  "acknowledged": true,
+                  "is_new": false
+                },
+                {
+                  "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+                  "acknowledged": true,
+                  "is_new": false
+                },
+                {
+                  "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+                  "acknowledged": true,
+                  "is_new": false
+                }
+              ]
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "法务-李华"
+          },
+          {
+            "id": "b4575979-1eb9-474b-b07c-4d19a4b703a9",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "conclude",
+            "user_id": "9013f6f2-aa8f-4b5f-a0a6-2f425e567996",
+            "user_role": "legal",
+            "details": {
+              "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+              "conclusion": "pass",
+              "comment": "",
+              "has_comment": false,
+              "version_changed_at_conclude": false,
+              "original_version": 1,
+              "current_version": 1
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "法务-李华"
+          },
+          {
+            "id": "716f30b5-2ae7-400e-b205-610b949ed976",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "conclude",
+            "user_id": "9013f6f2-aa8f-4b5f-a0a6-2f425e567996",
+            "user_role": "legal",
+            "details": {
+              "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+              "conclusion": "pass",
+              "comment": "法务2复核：违约金条款风险在可控范围。",
+              "has_comment": true,
+              "version_changed_at_conclude": false,
+              "original_version": 1,
+              "current_version": 1
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "法务-李华"
+          },
+          {
+            "id": "3a363900-c2e7-4a53-ad6e-9ca003eb646a",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "conclude",
+            "user_id": "9013f6f2-aa8f-4b5f-a0a6-2f425e567996",
+            "user_role": "legal",
+            "details": {
+              "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+              "conclusion": "need_more_info",
+              "comment": "",
+              "has_comment": false,
+              "version_changed_at_conclude": false,
+              "original_version": 1,
+              "current_version": 1
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "法务-李华"
+          },
+          {
+            "id": "ed532957-c579-48e3-b8e3-8804d7d1be67",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "clause_version_change",
+            "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+            "user_role": "admin",
+            "details": {
+              "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+              "old_version": 1,
+              "new_version": 2,
+              "change_type": "import_update",
+              "change_reason": "导入更新"
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "系统管理员"
+          },
+          {
+            "id": "fe5ece0e-14b3-4c3e-9bf4-6dbc152d85df",
+            "round_id": "d0cb2718-0ff6-4d48-a7e6-d5f9645aec19",
+            "action": "withdraw_round",
+            "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+            "user_role": "admin",
+            "details": {
+              "reason": "E2E测试：撤回回合，验证状态变更与历史留存"
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "系统管理员"
+          }
+        ]
+      },
+      {
+        "id": "284f5a2d-8783-4dd1-9e47-d69e2b209d69",
+        "contract_id": "2a49d735-ddd1-43c7-b9d3-747827b627e6",
+        "round_name": "纯法务内部会签（测试权限）",
+        "description": "",
+        "deadline": null,
+        "created_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+        "status": "active",
+        "withdraw_reason": null,
+        "withdrawn_at": null,
+        "withdrawn_by": null,
+        "completed_at": null,
+        "created_at": "2026-06-15 08:07:14",
+        "updated_at": "2026-06-15 08:07:14",
+        "creator_name": "系统管理员",
+        "withdrawer_name": null,
+        "participants": [
+          {
+            "id": "a6e2c61e-b803-45d6-a223-d03a13bd6821",
+            "round_id": "284f5a2d-8783-4dd1-9e47-d69e2b209d69",
+            "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "is_replaced": 0,
+            "replaced_by": null,
+            "replaced_at": null,
+            "replaced_reason": null,
+            "original_participant_id": null,
+            "created_at": "2026-06-15 08:07:14",
+            "username": "legal1",
+            "display_name": "法务-张明",
+            "role": "legal",
+            "original_user_name": null
+          },
+          {
+            "id": "aedc1b3c-d01b-4b82-bd26-c60d80e606f5",
+            "round_id": "284f5a2d-8783-4dd1-9e47-d69e2b209d69",
+            "user_id": "9013f6f2-aa8f-4b5f-a0a6-2f425e567996",
+            "is_replaced": 0,
+            "replaced_by": null,
+            "replaced_at": null,
+            "replaced_reason": null,
+            "original_participant_id": null,
+            "created_at": "2026-06-15 08:07:14",
+            "username": "legal2",
+            "display_name": "法务-李华",
+            "role": "legal",
+            "original_user_name": null
+          }
+        ],
+        "clauses": [
+          {
+            "id": "8a93e25a-10f1-4dd5-a109-f895ce7c1514",
+            "round_id": "284f5a2d-8783-4dd1-9e47-d69e2b209d69",
+            "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+            "clause_version_at_create": 1,
+            "needs_rereview": 1,
+            "rereview_reason": "条款版本变更：import_update（v1→v2）：导入更新",
+            "invalidated": 0,
+            "invalidation_reason": null,
+            "created_at": "2026-06-15 08:07:14",
+            "updated_at": "2026-06-15 08:07:14",
+            "clause_number": "1",
+            "title": "定义（修订版）"
+          }
+        ],
+        "conclusions": [],
+        "history": [
+          {
+            "id": "f95570be-b66b-4bae-a826-89ba039a7abf",
+            "round_id": "284f5a2d-8783-4dd1-9e47-d69e2b209d69",
+            "action": "create_round",
+            "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+            "user_role": "admin",
+            "details": {
+              "round_name": "纯法务内部会签（测试权限）",
+              "participant_count": 2,
+              "clause_count": 1,
+              "deadline": null
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "系统管理员"
+          },
+          {
+            "id": "cdd2c240-8896-4d61-a255-114be970d1dc",
+            "round_id": "284f5a2d-8783-4dd1-9e47-d69e2b209d69",
+            "action": "clause_version_change",
+            "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+            "user_role": "admin",
+            "details": {
+              "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+              "old_version": 1,
+              "new_version": 2,
+              "change_type": "import_update",
+              "change_reason": "导入更新"
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "系统管理员"
+          }
+        ]
+      },
+      {
+        "id": "7e7177c8-62bb-4a86-8840-d780816f3842",
+        "contract_id": "2a49d735-ddd1-43c7-b9d3-747827b627e6",
+        "round_name": "导出核对专用回合（仅签一半）",
+        "description": "用于验证导出包中 incomplete_items 和 can_be_marked_complete 字段",
+        "deadline": null,
+        "created_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+        "status": "active",
+        "withdraw_reason": null,
+        "withdrawn_at": null,
+        "withdrawn_by": null,
+        "completed_at": null,
+        "created_at": "2026-06-15 08:07:14",
+        "updated_at": "2026-06-15 08:07:14",
+        "creator_name": "系统管理员",
+        "withdrawer_name": null,
+        "participants": [
+          {
+            "id": "84132618-3492-4874-87c9-f6fa978bcdf0",
+            "round_id": "7e7177c8-62bb-4a86-8840-d780816f3842",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "is_replaced": 0,
+            "replaced_by": null,
+            "replaced_at": null,
+            "replaced_reason": null,
+            "original_participant_id": null,
+            "created_at": "2026-06-15 08:07:14",
+            "username": "business1",
+            "display_name": "业务-王芳",
+            "role": "business",
+            "original_user_name": null
+          }
+        ],
+        "clauses": [
+          {
+            "id": "0b3b23c9-8928-4db7-a11b-a35c1ee270ef",
+            "round_id": "7e7177c8-62bb-4a86-8840-d780816f3842",
+            "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+            "clause_version_at_create": 1,
+            "needs_rereview": 0,
+            "rereview_reason": null,
+            "invalidated": 0,
+            "invalidation_reason": null,
+            "created_at": "2026-06-15 08:07:14",
+            "updated_at": "2026-06-15 08:07:14",
+            "clause_number": "5.1",
+            "title": "保密义务"
+          },
+          {
+            "id": "124953f5-4c4a-4f97-b78a-f2c390b42266",
+            "round_id": "7e7177c8-62bb-4a86-8840-d780816f3842",
+            "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+            "clause_version_at_create": 1,
+            "needs_rereview": 0,
+            "rereview_reason": null,
+            "invalidated": 0,
+            "invalidation_reason": null,
+            "created_at": "2026-06-15 08:07:14",
+            "updated_at": "2026-06-15 08:07:14",
+            "clause_number": "3.2",
+            "title": "付款条款"
+          }
+        ],
+        "conclusions": [
+          {
+            "id": "3229126d-f09e-46bd-a70e-9762be8f74db",
+            "round_id": "7e7177c8-62bb-4a86-8840-d780816f3842",
+            "participant_id": "84132618-3492-4874-87c9-f6fa978bcdf0",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+            "conclusion": null,
+            "comment": null,
+            "acknowledged_at": "2026-06-15 08:07:14",
+            "concluded_at": null,
+            "original_version": 1,
+            "created_at": "2026-06-15 08:07:14",
+            "updated_at": "2026-06-15 08:07:14",
+            "user_name": "业务-王芳",
+            "participant_name": "业务-王芳"
+          },
+          {
+            "id": "3b40a366-c585-4c1a-ba7d-f12dbeca5877",
+            "round_id": "7e7177c8-62bb-4a86-8840-d780816f3842",
+            "participant_id": "84132618-3492-4874-87c9-f6fa978bcdf0",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+            "conclusion": "pass",
+            "comment": "",
+            "acknowledged_at": "2026-06-15 08:07:14",
+            "concluded_at": "2026-06-15 08:07:14",
+            "original_version": 1,
+            "created_at": "2026-06-15 08:07:14",
+            "updated_at": "2026-06-15 08:07:14",
+            "user_name": "业务-王芳",
+            "participant_name": "业务-王芳"
+          }
+        ],
+        "history": [
+          {
+            "id": "09f65144-8bed-4536-b2de-8ec67ea0b24c",
+            "round_id": "7e7177c8-62bb-4a86-8840-d780816f3842",
+            "action": "create_round",
+            "user_id": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+            "user_role": "admin",
+            "details": {
+              "round_name": "导出核对专用回合（仅签一半）",
+              "participant_count": 1,
+              "clause_count": 2,
+              "deadline": null
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "系统管理员"
+          },
+          {
+            "id": "f6ced4a4-ab68-4d9b-a758-f6188ee4e456",
+            "round_id": "7e7177c8-62bb-4a86-8840-d780816f3842",
+            "action": "acknowledge",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "user_role": "business",
+            "details": {
+              "clause_count": 2,
+              "results": [
+                {
+                  "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+                  "acknowledged": true,
+                  "is_new": true
+                },
+                {
+                  "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+                  "acknowledged": true,
+                  "is_new": true
+                }
+              ]
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "业务-王芳"
+          },
+          {
+            "id": "53663d72-bbda-4c87-8d79-f278705b8c39",
+            "round_id": "7e7177c8-62bb-4a86-8840-d780816f3842",
+            "action": "conclude",
+            "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "user_role": "business",
+            "details": {
+              "clause_id": "d6b03b0b-c68f-40dc-a484-3a530b8e1025",
+              "conclusion": "pass",
+              "comment": "",
+              "has_comment": false,
+              "version_changed_at_conclude": false,
+              "original_version": 1,
+              "current_version": 1
+            },
+            "created_at": "2026-06-15 08:07:14",
+            "user_name": "业务-王芳"
+          }
+        ]
+      }
+    ],
+    "incomplete_items": [
+      {
+        "round_id": "284f5a2d-8783-4dd1-9e47-d69e2b209d69",
+        "round_name": "纯法务内部会签（测试权限）",
+        "round_status": "active",
+        "participant_id": "a6e2c61e-b803-45d6-a223-d03a13bd6821",
+        "participant_name": "法务-张明",
+        "participant_role": "legal",
+        "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+        "clause_number": "1",
+        "clause_title": "定义（修订版）",
+        "acknowledged": false,
+        "concluded": false,
+        "needs_rereview": true,
+        "rereview_reason": "条款版本变更：import_update（v1→v2）：导入更新",
+        "invalidation_reason": null
+      },
+      {
+        "round_id": "284f5a2d-8783-4dd1-9e47-d69e2b209d69",
+        "round_name": "纯法务内部会签（测试权限）",
+        "round_status": "active",
+        "participant_id": "aedc1b3c-d01b-4b82-bd26-c60d80e606f5",
+        "participant_name": "法务-李华",
+        "participant_role": "legal",
+        "clause_id": "bd121fc4-c619-4652-9f45-1c6ce9d8e258",
+        "clause_number": "1",
+        "clause_title": "定义（修订版）",
+        "acknowledged": false,
+        "concluded": false,
+        "needs_rereview": true,
+        "rereview_reason": "条款版本变更：import_update（v1→v2）：导入更新",
+        "invalidation_reason": null
+      },
+      {
+        "round_id": "7e7177c8-62bb-4a86-8840-d780816f3842",
+        "round_name": "导出核对专用回合（仅签一半）",
+        "round_status": "active",
+        "participant_id": "84132618-3492-4874-87c9-f6fa978bcdf0",
+        "participant_name": "业务-王芳",
+        "participant_role": "business",
+        "clause_id": "c0ed1216-d80d-45a8-b95e-94e3ec17ef72",
+        "clause_number": "5.1",
+        "clause_title": "保密义务",
+        "acknowledged": true,
+        "concluded": false,
+        "needs_rereview": false,
+        "rereview_reason": null,
+        "invalidation_reason": null
+      }
+    ],
+    "invalidation_reasons": []
+  }
+}

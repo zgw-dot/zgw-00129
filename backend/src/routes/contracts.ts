@@ -3,6 +3,7 @@ import db from '../database';
 import { v4 as uuidv4 } from 'uuid';
 import { authMiddleware, requireRole } from '../middleware';
 import { createAuditLog } from '../audit';
+import { handleClauseVersionChange } from './countersigns';
 
 const router = Router();
 
@@ -350,6 +351,11 @@ router.post('/:id/import', requireRole('admin', 'legal'), (req: Request, res: Re
             `).run(existing.id);
           }
 
+          handleClauseVersionChange(
+            existing.id, existing.current_version, newVersion,
+            'import_override', confirmReason, req.user!.userId, req.user!.role
+          );
+
           updated.push({
             id: existing.id,
             clause_number: existing.clause_number,
@@ -380,6 +386,11 @@ router.post('/:id/import', requireRole('admin', 'legal'), (req: Request, res: Re
             uuidv4(), existing.id, newVersion, clause.title, clause.content, riskLevel,
             req.user!.userId,
             '导入更新'
+          );
+
+          handleClauseVersionChange(
+            existing.id, existing.current_version, newVersion,
+            'import_update', '导入更新', req.user!.userId, req.user!.role
           );
 
           updated.push({

@@ -7,6 +7,7 @@ import authRoutes from './routes/auth';
 import contractRoutes from './routes/contracts';
 import clauseRoutes from './routes/clauses';
 import exportRoutes from './routes/export';
+import countersignRoutes from './routes/countersigns';
 
 const PORT = Number(process.env.PORT) || 3001;
 
@@ -31,6 +32,7 @@ async function bootstrap() {
   app.use('/api/contracts', contractRoutes);
   app.use('/api/clauses', clauseRoutes);
   app.use('/api/reports', exportRoutes);
+  app.use('/api/countersigns', countersignRoutes);
 
   const dataDir = path.join(__dirname, '..', 'data');
   if (fs.existsSync(dataDir)) {
