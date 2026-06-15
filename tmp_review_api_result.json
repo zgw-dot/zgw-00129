@@ -1,0 +1,17 @@
+{
+  "checks": [
+    "create contract + import clauses",
+    "success path: save draft + restore without conflict",
+    "permission isolation: another role cannot read current user draft",
+    "boundary path: conflict detected after clause version changes",
+    "failure path: invalid conflict action returns 400",
+    "failure path: restoring non-existent draft returns 404",
+    "audit path: discard and submit clear draft as expected",
+    "export includes draft restore/conflict audit logs"
+  ],
+  "contract_id": "bfa2f929-27bf-4a89-b5c7-c88fae09d6b1",
+  "restart_check": {
+    "clause_id": "3977f28c-97d7-4d77-bed1-ab9287a39122",
+    "expected_content": "重启后应能恢复的草稿。"
+  }
+}

@@ -432,8 +432,13 @@ router.get('/:id/drafts', requireRole('legal', 'business', 'admin'), (req: Reque
       newer_versions: newerVersions
     };
   }
+  let context_snapshot = null;
+  if (draft.context_snapshot) {
+    try { context_snapshot = JSON.parse(draft.context_snapshot); } catch {}
+  }
   res.json({
     ...draft,
+    context_snapshot,
     version_conflict,
     current_version: clause?.current_version,
     last_save_time: draft.updated_at,
@@ -457,6 +462,20 @@ router.post('/:id/drafts', requireRole('legal', 'business', 'admin'), (req: Requ
     return;
   }
 
+  const targetVersion = db.prepare(
+    'SELECT * FROM clause_versions WHERE clause_id = ? AND version_number = ?'
+  ).get(req.params.id, base_version) as any;
+
+  const snapshot = JSON.stringify({
+    clause_title: clause.title,
+    clause_content: clause.content,
+    clause_risk_level: clause.risk_level,
+    clause_updated_at: clause.updated_at,
+    version_number: base_version,
+    version_title: targetVersion?.title || clause.title,
+    version_content: targetVersion?.content || clause.content
+  });
+
   const existing = db.prepare(
     'SELECT id FROM suggestion_drafts WHERE clause_id = ? AND user_id = ?'
   ).get(req.params.id, req.user!.userId) as any;
@@ -467,23 +486,23 @@ router.post('/:id/drafts', requireRole('legal', 'business', 'admin'), (req: Requ
     db.prepare(`
       UPDATE suggestion_drafts SET type = ?, content = ?, base_version = ?,
         amended_title = ?, amended_content = ?, risk_level = ?, exclusive_role = ?,
-        updated_at = CURRENT_TIMESTAMP
+        context_snapshot = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `).run(
       type, content || '', base_version,
       amended_title || null, amended_content || null,
-      risk_level || null, exclusive_role || 'all', draftId
+      risk_level || null, exclusive_role || 'all', snapshot, draftId
     );
   } else {
     draftId = uuidv4();
     db.prepare(`
       INSERT INTO suggestion_drafts (id, clause_id, user_id, base_version, type, content,
-        amended_title, amended_content, risk_level, exclusive_role)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        amended_title, amended_content, risk_level, exclusive_role, context_snapshot)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       draftId, clause.id, req.user!.userId, base_version, type, content || '',
       amended_title || null, amended_content || null,
-      risk_level || null, exclusive_role || 'all'
+      risk_level || null, exclusive_role || 'all', snapshot
     );
   }
 
@@ -495,9 +514,13 @@ router.post('/:id/drafts', requireRole('legal', 'business', 'admin'), (req: Requ
     is_update: !!existing
   });
 
-  const draft = db.prepare('SELECT * FROM suggestion_drafts WHERE id = ?').get(draftId);
+  const draft = db.prepare('SELECT * FROM suggestion_drafts WHERE id = ?').get(draftId) as any;
   const version_conflict = base_version < clause.current_version;
-  res.json({ ...draft, version_conflict, current_version: clause.current_version });
+  let context_snapshot = null;
+  if (draft.context_snapshot) {
+    try { context_snapshot = JSON.parse(draft.context_snapshot); } catch {}
+  }
+  res.json({ ...draft, context_snapshot, version_conflict, current_version: clause.current_version });
 });
 
 router.post('/:id/drafts/restore', requireRole('legal', 'business', 'admin'), (req: Request, res: Response) => {
@@ -533,8 +556,14 @@ router.post('/:id/drafts/restore', requireRole('legal', 'business', 'admin'), (r
     };
   }
 
+  let context_snapshot = null;
+  if (draft.context_snapshot) {
+    try { context_snapshot = JSON.parse(draft.context_snapshot); } catch {}
+  }
+
   res.json({
     ...draft,
+    context_snapshot,
     version_conflict,
     current_version: clause?.current_version,
     last_save_time: draft.updated_at,
@@ -561,6 +590,11 @@ router.post('/:id/drafts/conflict-action', requireRole('legal', 'business', 'adm
     return;
   }
 
+  const parseSnapshot = (raw: any) => {
+    if (!raw) return null;
+    try { return JSON.parse(raw); } catch { return null; }
+  };
+
   const auditAction = action === 'continue' ? 'draft_conflict_continue'
     : action === 'copy' ? 'draft_conflict_copy'
     : 'draft_conflict_discard';
@@ -582,6 +616,7 @@ router.post('/:id/drafts/conflict-action', requireRole('legal', 'business', 'adm
     const version_conflict = draft.base_version < clause.current_version;
     res.json({
       ...draft,
+      context_snapshot: parseSnapshot(draft.context_snapshot),
       version_conflict,
       current_version: clause.current_version,
       last_save_time: draft.updated_at,
@@ -591,17 +626,30 @@ router.post('/:id/drafts/conflict-action', requireRole('legal', 'business', 'adm
   }
 
   if (action === 'copy') {
+    const targetVersion = db.prepare(
+      'SELECT * FROM clause_versions WHERE clause_id = ? AND version_number = ?'
+    ).get(req.params.id, clause.current_version) as any;
+    const newSnapshot = JSON.stringify({
+      clause_title: clause.title,
+      clause_content: clause.content,
+      clause_risk_level: clause.risk_level,
+      clause_updated_at: clause.updated_at,
+      version_number: clause.current_version,
+      version_title: targetVersion?.title || clause.title,
+      version_content: targetVersion?.content || clause.content
+    });
     db.prepare(`
-      UPDATE suggestion_drafts SET base_version = ?,
+      UPDATE suggestion_drafts SET base_version = ?, context_snapshot = ?,
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
-    `).run(clause.current_version, draft.id);
-    const updated = db.prepare('SELECT * FROM suggestion_drafts WHERE id = ?').get(draft.id);
+    `).run(clause.current_version, newSnapshot, draft.id);
+    const updated = db.prepare('SELECT * FROM suggestion_drafts WHERE id = ?').get(draft.id) as any;
     res.json({
       ...updated,
+      context_snapshot: parseSnapshot(updated.context_snapshot),
       version_conflict: false,
       current_version: clause.current_version,
-      last_save_time: (updated as any).updated_at,
+      last_save_time: updated.updated_at,
       action: 'copy'
     });
     return;

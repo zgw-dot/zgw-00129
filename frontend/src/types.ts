@@ -89,6 +89,16 @@ export interface AuditLog {
   user_name?: string;
 }
 
+export interface DraftContextSnapshot {
+  clause_title: string;
+  clause_content: string;
+  clause_risk_level: RiskLevel;
+  clause_updated_at: string;
+  version_number: number;
+  version_title: string;
+  version_content: string;
+}
+
 export interface SuggestionDraft {
   id: string;
   clause_id: string;
@@ -100,6 +110,7 @@ export interface SuggestionDraft {
   amended_content?: string | null;
   risk_level?: RiskLevel | null;
   exclusive_role?: ExclusiveRole | null;
+  context_snapshot?: DraftContextSnapshot | null;
   created_at: string;
   updated_at: string;
   version_conflict?: boolean;

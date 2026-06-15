@@ -8,12 +8,14 @@ import {
   ArrowLeftOutlined, EditOutlined, MessageOutlined, HistoryOutlined,
   RollbackOutlined, FileTextOutlined, PlusOutlined, WarningOutlined,
   LockOutlined, TeamOutlined, SafetyOutlined, ReloadOutlined,
-  SaveOutlined, DeleteOutlined, CopyOutlined
+  SaveOutlined, DeleteOutlined, CopyOutlined, EyeOutlined,
+  ThunderboltOutlined
 } from '@ant-design/icons';
 import { clausesApi, reportsApi } from '../api';
 import {
   Clause, ClauseVersion, Suggestion, SuggestionType, RiskLevel,
-  RISK_LABELS, RISK_COLORS, ROLE_LABELS, UserRole, SuggestionDraft
+  RISK_LABELS, RISK_COLORS, ROLE_LABELS, UserRole, SuggestionDraft,
+  DraftContextSnapshot
 } from '../types';
 import { useAuthStore } from '../store';
 import SuggestionCard from '../components/SuggestionCard';
@@ -40,13 +42,32 @@ const ClauseDetailPage: React.FC = () => {
   const [draftConflictHandled, setDraftConflictHandled] = useState(false);
   const [restorePromptOpen, setRestorePromptOpen] = useState(false);
   const [restoring, setRestoring] = useState(false);
+  const [viewOldContentOpen, setViewOldContentOpen] = useState(false);
+  const [oldSnapshot, setOldSnapshot] = useState<DraftContextSnapshot | null>(null);
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fillDraftIntoFormAndOpen = useCallback((draft: SuggestionDraft) => {
+    suggestionForm.setFieldsValue({
+      type: draft.type,
+      base_version: draft.base_version,
+      content: draft.content,
+      amended_title: draft.amended_title,
+      amended_content: draft.amended_content,
+      risk_level: draft.risk_level,
+      exclusive_role: draft.exclusive_role || 'all'
+    });
+    setShowNewSuggestion(true);
+  }, [suggestionForm]);
 
   const loadClause = async () => {
     setLoading(true);
     try {
       const data = await clausesApi.get(clauseId!);
       setClause(data);
+      if (['legal', 'business', 'admin'].includes(user.role)) {
+        const draft = await loadDraft();
+        if (draft) setRestorePromptOpen(true);
+      }
     } finally { setLoading(false); }
   };
 
@@ -130,10 +151,12 @@ const ClauseDetailPage: React.FC = () => {
     if (!currentDraft) return;
     try {
       setRestoring(true);
-      await clausesApi.restoreDraft(clauseId!);
+      const restored = await clausesApi.restoreDraft(clauseId!);
+      setCurrentDraft(restored);
       setDraftConflictHandled(true);
       setRestorePromptOpen(false);
-      message.success('已恢复上次编辑草稿');
+      message.success('已恢复上次编辑草稿，正在打开编辑窗口...');
+      fillDraftIntoFormAndOpen(restored);
     } catch (e: any) {
       message.error(e.response?.data?.error || '恢复草稿失败');
     } finally {
@@ -153,12 +176,19 @@ const ClauseDetailPage: React.FC = () => {
         suggestionForm.resetFields();
         message.success('草稿已丢弃');
       } else if (action === 'continue') {
+        const merged = { ...currentDraft, ...(res as SuggestionDraft) };
+        setCurrentDraft(merged);
         setDraftConflictHandled(true);
+        setRestorePromptOpen(false);
         message.info('继续基于旧版本编辑');
+        fillDraftIntoFormAndOpen(merged);
       } else if (action === 'copy') {
-        setCurrentDraft(res as SuggestionDraft);
+        const merged = res as SuggestionDraft;
+        setCurrentDraft(merged);
         setDraftConflictHandled(true);
-        message.info('已将草稿内容复制到基于当前版本，请继续编辑');
+        setRestorePromptOpen(false);
+        message.success('已将草稿内容复制到基于当前版本，正在打开编辑窗口...');
+        fillDraftIntoFormAndOpen(merged);
       }
     } catch (e: any) {
       message.error(e.response?.data?.error || '操作失败');
@@ -352,41 +382,101 @@ const ClauseDetailPage: React.FC = () => {
 
           {restorePromptOpen && currentDraft && (
             <Alert
-              style={{ marginTop: 16 }}
-              type={currentDraft.version_conflict ? 'warning' : 'info'}
+              style={{ marginTop: 16, boxShadow: '0 2px 8px rgba(22,119,255,0.12)' }}
+              type={currentDraft.version_conflict ? 'warning' : 'success'}
               showIcon
-              icon={currentDraft.version_conflict ? <WarningOutlined /> : <SaveOutlined />}
-              message={currentDraft.version_conflict ? '检测到上次编辑的草稿存在版本冲突' : '检测到上次未提交的草稿'}
+              icon={currentDraft.version_conflict ? <WarningOutlined style={{ fontSize: 20 }} /> : <ThunderboltOutlined style={{ fontSize: 20, color: '#52c41a' }} />}
+              message={
+                <Space>
+                  <Text strong style={{ fontSize: 15 }}>
+                    {currentDraft.version_conflict ? '上次编辑的草稿存在版本变化' : '发现您上次未完成的编辑'}
+                  </Text>
+                </Space>
+              }
               description={
                 <div>
-                  <Paragraph style={{ marginBottom: 8 }}>
-                    您在 <Text strong>{dayjs(currentDraft.last_save_time || currentDraft.updated_at).format('YYYY-MM-DD HH:mm:ss')}</Text> 保存了草稿，基于条款版本 <Tag color="blue">v{currentDraft.base_version}</Tag>。
-                    {currentDraft.version_conflict && (
-                      <>当前条款已更新至 <Tag color="red">v{currentDraft.current_version || clause.current_version}</Tag>，草稿基于的版本已过期。</>
-                    )}
-                    {!currentDraft.version_conflict && (
-                      <>条款版本未变化，可直接继续编辑。</>
-                    )}
-                  </Paragraph>
+                  <Row gutter={12} style={{ marginBottom: 10 }}>
+                    <Col span={12}>
+                      <Card size="small" style={{ background: '#f0f5ff', border: '1px solid #d6e4ff' }}>
+                        <Statistic
+                          title={<span><SaveOutlined style={{ color: '#1677ff' }} /> 最近保存时间</span>}
+                          value={dayjs(currentDraft.last_save_time || currentDraft.updated_at).format('YYYY-MM-DD HH:mm:ss')}
+                          valueStyle={{ fontSize: 14, fontWeight: 600, color: '#1677ff' }}
+                        />
+                      </Card>
+                    </Col>
+                    <Col span={12}>
+                      <Card size="small" style={{ background: '#f6ffed', border: '1px solid #b7eb8f' }}>
+                        <Statistic
+                          title={<span><FileTextOutlined style={{ color: '#52c41a' }} /> 草稿基于版本</span>}
+                          value={`v${currentDraft.base_version}`}
+                          prefix={<Tag color="blue" style={{ marginRight: 4 }}>基础</Tag>}
+                          valueStyle={{ fontSize: 16, fontWeight: 700, color: '#389e0d' }}
+                        />
+                        {currentDraft.version_conflict && (
+                          <div style={{ marginTop: 4 }}>
+                            <Text type="danger" style={{ fontSize: 12 }}>
+                              ⚠️ 当前版本：v{currentDraft.current_version || clause.current_version}
+                            </Text>
+                          </div>
+                        )}
+                      </Card>
+                    </Col>
+                  </Row>
+
                   {currentDraft.version_conflict && currentDraft.conflict_detail?.newer_versions && currentDraft.conflict_detail.newer_versions.length > 0 && (
-                    <div style={{ marginBottom: 8, padding: '8px 12px', background: '#fffbe6', borderRadius: 4, border: '1px solid #ffe58f' }}>
-                      <Text strong style={{ fontSize: 12 }}>版本变更记录：</Text>
-                      <ul style={{ margin: '4px 0 0', paddingLeft: 20, fontSize: 12 }}>
-                        {currentDraft.conflict_detail!.newer_versions.map((v: any) => (
-                          <li key={v.version_number}>
-                            v{v.version_number} · {v.display_name} · {v.change_summary || '无摘要'} · {dayjs(v.created_at).format('MM-DD HH:mm')}
-                          </li>
-                        ))}
-                      </ul>
+                    <div style={{ marginBottom: 10, padding: '10px 14px', background: '#fffbe6', borderRadius: 6, border: '1px solid #ffe58f' }}>
+                      <Row justify="space-between" align="middle" style={{ marginBottom: 6 }}>
+                        <Text strong style={{ fontSize: 13 }}>
+                          <WarningOutlined style={{ color: '#faad14', marginRight: 4 }} />
+                          草稿保存后发生了 {currentDraft.conflict_detail.newer_versions.length} 次版本变更：
+                        </Text>
+                        {currentDraft.context_snapshot && (
+                          <Button
+                            type="link"
+                            size="small"
+                            icon={<EyeOutlined />}
+                            onClick={() => {
+                              setOldSnapshot(currentDraft.context_snapshot!);
+                              setViewOldContentOpen(true);
+                            }}
+                          >
+                            查看草稿保存时的条款内容
+                          </Button>
+                        )}
+                      </Row>
+                      <Timeline
+                        style={{ padding: '4px 0 0', margin: 0 }}
+                        items={currentDraft.conflict_detail!.newer_versions.map((v: any) => ({
+                          color: 'blue',
+                          dot: <Tag color="purple" style={{ fontSize: 11, padding: '0 6px' }}>v{v.version_number}</Tag>,
+                          children: (
+                            <div style={{ fontSize: 12 }}>
+                              <Text strong>{v.display_name}</Text>
+                              <Text type="secondary" style={{ marginLeft: 8 }}>{dayjs(v.created_at).format('MM-DD HH:mm')}</Text>
+                              <div style={{ marginTop: 2, color: '#666' }}>{v.change_summary || '（无变更摘要）'}</div>
+                            </div>
+                          )
+                        }))}
+                      />
                     </div>
                   )}
-                  <Space style={{ marginTop: 4 }}>
+
+                  {!currentDraft.version_conflict && (
+                    <Paragraph style={{ marginBottom: 10, color: '#389e0d', fontSize: 13 }}>
+                      ✅ 条款版本未发生变化（当前仍为 v{currentDraft.base_version}），可直接无缝继续编辑。
+                    </Paragraph>
+                  )}
+
+                  <Space wrap size={8} style={{ marginTop: 4 }}>
                     {!currentDraft.version_conflict && (
                       <Button
                         type="primary"
-                        icon={<EditOutlined />}
+                        size="large"
+                        icon={<ThunderboltOutlined />}
                         loading={restoring}
                         onClick={handleRestoreContinue}
+                        style={{ fontWeight: 600, boxShadow: '0 2px 6px rgba(22,119,255,0.3)' }}
                       >
                         一键继续编辑
                       </Button>
@@ -394,33 +484,42 @@ const ClauseDetailPage: React.FC = () => {
                     {currentDraft.version_conflict && (
                       <>
                         <Button
-                          size="small"
+                          type="primary"
                           icon={<CopyOutlined />}
                           loading={restoring}
                           onClick={() => handleDraftConflictAction('copy')}
                         >
-                          复制内容到新版本
+                          复制内容到 v{currentDraft.current_version || clause.current_version} 继续
                         </Button>
                         <Button
-                          size="small"
+                          icon={<EditOutlined />}
                           loading={restoring}
                           onClick={() => handleDraftConflictAction('continue')}
                         >
-                          继续编辑（基于旧版本）
+                          坚持基于 v{currentDraft.base_version} 编辑
                         </Button>
+                        {currentDraft.context_snapshot && (
+                          <Button
+                            icon={<EyeOutlined />}
+                            onClick={() => {
+                              setOldSnapshot(currentDraft.context_snapshot!);
+                              setViewOldContentOpen(true);
+                            }}
+                          >
+                            查看旧内容
+                          </Button>
+                        )}
                       </>
                     )}
                     <Button
-                      size="small"
                       danger
                       icon={<DeleteOutlined />}
                       loading={restoring}
-                      onClick={handleDraftConflictAction ? () => handleDraftConflictAction('discard') : handleDiscardDraft}
+                      onClick={() => handleDraftConflictAction('discard')}
                     >
                       放弃草稿
                     </Button>
                     <Button
-                      size="small"
                       type="link"
                       onClick={() => setRestorePromptOpen(false)}
                     >
@@ -755,6 +854,117 @@ const ClauseDetailPage: React.FC = () => {
             </Card>
           </Col>
         </Row>
+      </Modal>
+
+      <Modal
+        title={
+          <Space>
+            <EyeOutlined style={{ color: '#1677ff' }} />
+            草稿保存时的条款内容快照
+            {oldSnapshot && (
+              <Tag color="orange">
+                基于 v{oldSnapshot.version_number} · {dayjs(oldSnapshot.clause_updated_at).format('YYYY-MM-DD HH:mm')}
+              </Tag>
+            )}
+          </Space>
+        }
+        open={viewOldContentOpen}
+        onCancel={() => {
+          setViewOldContentOpen(false);
+          setOldSnapshot(null);
+        }}
+        width={820}
+        footer={
+          <Space>
+            <Button
+              icon={<CopyOutlined />}
+              onClick={() => {
+                if (oldSnapshot) {
+                  navigator.clipboard?.writeText(oldSnapshot.version_content);
+                  message.success('旧内容已复制到剪贴板');
+                }
+              }}
+            >
+              复制旧内容
+            </Button>
+            {oldSnapshot && clause && oldSnapshot.version_number !== clause.current_version && (
+              <Button
+                icon={<FileTextOutlined />}
+                onClick={() => {
+                  if (oldSnapshot && clause.versions) {
+                    const cur = clause.versions.find(v => v.version_number === clause.current_version);
+                    const snapVersion: ClauseVersion = {
+                      id: 'snapshot',
+                      clause_id: clause.id,
+                      version_number: oldSnapshot.version_number,
+                      title: oldSnapshot.version_title,
+                      content: oldSnapshot.version_content,
+                      risk_level: oldSnapshot.clause_risk_level,
+                      created_by: '',
+                      created_at: oldSnapshot.clause_updated_at,
+                      change_summary: '草稿保存时的快照',
+                      creator_name: '历史快照'
+                    };
+                    setCompareVersions({ a: snapVersion, b: cur });
+                    setViewOldContentOpen(false);
+                  }
+                }}
+              >
+                与当前版本对比
+              </Button>
+            )}
+            <Button
+              type="primary"
+              onClick={() => {
+                setViewOldContentOpen(false);
+                setOldSnapshot(null);
+              }}
+            >
+              关闭
+            </Button>
+          </Space>
+        }
+      >
+        {oldSnapshot && (
+          <div>
+            <Alert
+              type="info"
+              showIcon
+              style={{ marginBottom: 16 }}
+              message={
+                <Space>
+                  <Text>这是您 <Text strong>{dayjs(oldSnapshot.clause_updated_at).format('YYYY-MM-DD HH:mm:ss')}</Text> 保存草稿时，条款 <Text strong>v{oldSnapshot.version_number}</Text> 的完整内容。</Text>
+                </Space>
+              }
+            />
+            <Card
+              size="small"
+              title={
+                <Space>
+                  <Tag color="orange">快照 v{oldSnapshot.version_number}</Tag>
+                  <Text strong>{oldSnapshot.version_title}</Text>
+                  <Tag color={RISK_COLORS[oldSnapshot.clause_risk_level]}>{RISK_LABELS[oldSnapshot.clause_risk_level]}</Tag>
+                </Space>
+              }
+              style={{ background: '#fff7e6', border: '1px solid #ffd591' }}
+            >
+              <div
+                className="clause-content"
+                style={{
+                  whiteSpace: 'pre-wrap',
+                  padding: 16,
+                  background: '#ffffff',
+                  borderRadius: 6,
+                  border: '1px solid #e8e8e8',
+                  fontSize: 14,
+                  lineHeight: 1.8
+                }}
+              >
+                {oldSnapshot.version_content}
+              </div>
+            </Card>
+          </div>
+        )}
       </Modal>
     </div>
   );

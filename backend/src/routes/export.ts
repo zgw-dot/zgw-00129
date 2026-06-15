@@ -80,7 +80,10 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
     FROM suggestion_drafts d LEFT JOIN users u ON d.user_id = u.id
     WHERE d.clause_id IN (${clauseIds.map(() => '?').join(',')})
     ORDER BY d.updated_at DESC
-  `).all(...clauseIds) : [];
+  `).all(...clauseIds).map((d: any) => ({
+    ...d,
+    context_snapshot: d.context_snapshot ? JSON.parse(d.context_snapshot) : null
+  })) : [];
 
   const exportData = {
     exported_at: new Date().toISOString(),

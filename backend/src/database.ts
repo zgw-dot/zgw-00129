@@ -180,6 +180,7 @@ export async function initDatabase() {
       amended_content TEXT,
       risk_level TEXT CHECK (risk_level IN ('low', 'medium', 'high', 'critical')),
       exclusive_role TEXT CHECK (exclusive_role IN ('legal', 'business', 'all')),
+      context_snapshot TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(clause_id, user_id)
@@ -201,8 +202,12 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_suggestions_clause ON suggestions(clause_id);
     CREATE INDEX IF NOT EXISTS idx_suggestions_status ON suggestions(status);
     CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
-  CREATE INDEX IF NOT EXISTS idx_drafts_clause_user ON suggestion_drafts(clause_id, user_id);
+    CREATE INDEX IF NOT EXISTS idx_drafts_clause_user ON suggestion_drafts(clause_id, user_id);
   `);
+
+  try {
+    db.exec('ALTER TABLE suggestion_drafts ADD COLUMN context_snapshot TEXT');
+  } catch (_) {}
 
   process.on('beforeExit', () => {
     if (db && db.__dirty) saveToDisk();
