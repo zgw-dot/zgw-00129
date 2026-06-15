@@ -6,6 +6,119 @@ const router = Router();
 
 router.use(authMiddleware);
 
+export function getHandoverRecordsForContract(contractId: string) {
+  const handoverRows = db.prepare(`
+    SELECT h.*
+    FROM handovers h
+    WHERE h.id IN (
+      SELECT DISTINCT hi.handover_id FROM handover_items hi
+      WHERE (hi.item_type = 'draft' AND hi.item_id IN (
+          SELECT d.id FROM suggestion_drafts d
+          JOIN clauses c ON d.clause_id = c.id WHERE c.contract_id = ?
+        ))
+        OR (hi.item_type = 'countersign' AND hi.item_id IN (
+          SELECT r.id FROM countersign_rounds r WHERE r.contract_id = ?
+        ))
+        OR (hi.item_type = 'ticket' AND hi.item_id IN (
+          SELECT t.id FROM review_tickets t WHERE t.contract_id = ?
+        ))
+        OR (hi.item_type = 'suggestion' AND hi.item_id IN (
+          SELECT s.id FROM suggestions s
+          JOIN clauses c ON s.clause_id = c.id WHERE c.contract_id = ?
+        ))
+    )
+    ORDER BY h.created_at ASC
+  `).all(contractId, contractId, contractId, contractId) as any[];
+
+  const userIds = new Set<string>();
+  for (const h of handoverRows) {
+    if (h.from_user_id) userIds.add(h.from_user_id);
+    if (h.to_user_id) userIds.add(h.to_user_id);
+  }
+  const userMap: Record<string, string> = {};
+  if (userIds.size > 0) {
+    const ids = Array.from(userIds);
+    const users = db.prepare(`
+      SELECT id, display_name FROM users WHERE id IN (${ids.map(() => '?').join(',')})
+    `).all(...ids) as any[];
+    for (const u of users) {
+      userMap[u.id] = u.display_name;
+    }
+  }
+
+  return handoverRows.map((h: any) => ({
+    ...h,
+    from_user_name: userMap[h.from_user_id] || null,
+    to_user_name: userMap[h.to_user_id] || null
+  }));
+}
+
+export function getHandoverItemsForContract(handoverIds: string[], contractId: string) {
+  if (handoverIds.length === 0) return [];
+  return db.prepare(`
+    SELECT hi.* FROM handover_items hi
+    WHERE hi.handover_id IN (${handoverIds.map(() => '?').join(',')})
+      AND (
+        (hi.item_type = 'draft' AND hi.item_id IN (
+          SELECT d.id FROM suggestion_drafts d
+          JOIN clauses c ON d.clause_id = c.id WHERE c.contract_id = ?
+        ))
+        OR (hi.item_type = 'countersign' AND hi.item_id IN (
+          SELECT r.id FROM countersign_rounds r WHERE r.contract_id = ?
+        ))
+        OR (hi.item_type = 'ticket' AND hi.item_id IN (
+          SELECT t.id FROM review_tickets t WHERE t.contract_id = ?
+        ))
+        OR (hi.item_type = 'suggestion' AND hi.item_id IN (
+          SELECT s.id FROM suggestions s
+          JOIN clauses c ON s.clause_id = c.id WHERE c.contract_id = ?
+        ))
+      )
+    ORDER BY hi.created_at ASC
+  `).all(...handoverIds, contractId, contractId, contractId, contractId).map((i: any) => ({
+    ...i,
+    snapshot: i.snapshot ? JSON.parse(i.snapshot) : null
+  }));
+}
+
+export function getHandoverHistoryForIds(handoverIds: string[]) {
+  if (handoverIds.length === 0) return [];
+  return db.prepare(`
+    SELECT hh.*, u.display_name as user_name
+    FROM handover_history hh
+    LEFT JOIN users u ON hh.user_id = u.id
+    WHERE hh.handover_id IN (${handoverIds.map(() => '?').join(',')})
+    ORDER BY hh.created_at ASC
+  `).all(...handoverIds).map((h: any) => ({
+    ...h,
+    details: h.details ? JSON.parse(h.details) : null
+  }));
+}
+
+export function buildHandoverExport(contractId: string) {
+  const handoverData = getHandoverRecordsForContract(contractId);
+  const handoverIds = handoverData.map(h => h.id);
+  const handoverItems = getHandoverItemsForContract(handoverIds, contractId);
+  const handoverHistory = getHandoverHistoryForIds(handoverIds);
+
+  const filteredRecords = handoverData.map((h: any) => ({
+    ...h,
+    items: handoverItems.filter((i: any) => i.handover_id === h.id),
+    history: handoverHistory.filter((hh: any) => hh.handover_id === h.id)
+  })).filter((h: any) => h.items.length > 0);
+
+  return {
+    records: filteredRecords,
+    summary: {
+      total: filteredRecords.length,
+      pending: filteredRecords.filter((h: any) => h.status === 'pending').length,
+      signed: filteredRecords.filter((h: any) => h.status === 'signed').length,
+      withdrawn: filteredRecords.filter((h: any) => h.status === 'withdrawn').length,
+      conflict: filteredRecords.filter((h: any) => h.status === 'conflict').length
+    }
+  };
+}
+
 router.get('/audit-logs', (req: Request, res: Response) => {
   const { entity_type, entity_id, user_id, limit = 200, offset = 0 } = req.query;
 
@@ -274,47 +387,7 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
     });
   }
 
-  let handoverData: any[] = [];
-  let handoverItems: any[] = [];
-  let handoverHistory: any[] = [];
-  if (roundIds.length > 0) {
-    handoverData = db.prepare(`
-      SELECT h.*, u.display_name as from_user_name, u2.display_name as to_user_name
-      FROM handovers h
-      LEFT JOIN users u ON h.from_user_id = u.id
-      LEFT JOIN users u2 ON h.to_user_id = u.id
-      WHERE (h.from_user_id IN (
-        SELECT DISTINCT p.user_id FROM countersign_participants p
-        WHERE p.round_id IN (${roundIds.map(() => '?').join(',')}) AND p.is_replaced = 0
-      ) OR h.to_user_id IN (
-        SELECT DISTINCT p.user_id FROM countersign_participants p
-        WHERE p.round_id IN (${roundIds.map(() => '?').join(',')}) AND p.is_replaced = 0
-      ))
-      ORDER BY h.created_at ASC
-    `).all(...roundIds, ...roundIds);
-
-    const handoverIds = (handoverData as any[]).map(h => (h as any).id);
-    if (handoverIds.length > 0) {
-      handoverItems = db.prepare(`
-        SELECT * FROM handover_items WHERE handover_id IN (${handoverIds.map(() => '?').join(',')})
-        ORDER BY created_at ASC
-      `).all(...handoverIds).map((i: any) => ({
-        ...i,
-        snapshot: i.snapshot ? JSON.parse(i.snapshot) : null
-      }));
-
-      handoverHistory = db.prepare(`
-        SELECT hh.*, u.display_name as user_name
-        FROM handover_history hh
-        LEFT JOIN users u ON hh.user_id = u.id
-        WHERE hh.handover_id IN (${handoverIds.map(() => '?').join(',')})
-        ORDER BY hh.created_at ASC
-      `).all(...handoverIds).map((h: any) => ({
-        ...h,
-        details: h.details ? JSON.parse(h.details) : null
-      }));
-    }
-  }
+  const handoverExport = buildHandoverExport(req.params.id);
 
   const exportData = {
     exported_at: new Date().toISOString(),
@@ -371,20 +444,7 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
         }
       }
     },
-    handovers: {
-      records: handoverData.map((h: any) => ({
-        ...h,
-        items: handoverItems.filter((i: any) => i.handover_id === h.id),
-        history: handoverHistory.filter((hh: any) => hh.handover_id === h.id)
-      })),
-      summary: {
-        total: handoverData.length,
-        pending: handoverData.filter((h: any) => h.status === 'pending').length,
-        signed: handoverData.filter((h: any) => h.status === 'signed').length,
-        withdrawn: handoverData.filter((h: any) => h.status === 'withdrawn').length,
-        conflict: handoverData.filter((h: any) => h.status === 'conflict').length
-      }
-    }
+    handovers: handoverExport
   };
 
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
