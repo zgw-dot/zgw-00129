@@ -37,7 +37,7 @@ npm run dev
 |---------|---------|------|
 | **前端** | React 18 + TypeScript + Vite + Ant Design 5 + Zustand | 响应式 UI，版本对比可视化 |
 | **后端** | Node.js + Express + TypeScript | RESTful API，JWT 鉴权 |
-| **存储** | better-sqlite3 (WAL 模式) | 单文件数据库，进程重启数据零丢失 |
+| **存储** | sql.js (SQLite 内存库 + 定时持久化) | 单文件数据库，进程重启数据零丢失 |
 | **认证** | JWT + bcrypt | 7 天有效期 Token |
 
 **目录结构：**
@@ -180,9 +180,31 @@ zgw-00129/
       "suggestions": [ ... ]       // 所有建议与决策
     }
   ],
-  "audit_logs": [ ... ]            // 相关操作日志（含决策原因）
+  "drafts": [
+    {
+      "id": "...", "clause_id": "...", "user_id": "...",
+      "user_name": "...", "user_role": "...",
+      "type": "comment" | "amendment",
+      "content": "...",
+      "base_version": 1,
+      "created_at": "...", "updated_at": "..."
+    }
+  ],
+  "audit_logs": [
+    {
+      "entity_type": "contract" | "clause" | "suggestion" | "draft",
+      "action": "save_draft" | "submit_draft" | "delete_draft" | ...,
+      "details": { "clause_id": "...", "draft_id": "...", "suggestion_id": "..." },
+      ...
+    }
+  ]
 }
 ```
+
+**字段说明**：
+- `drafts`：本合同所有未被清理的**建议草稿**，按用户 × 条款隔离，`clause_id` 均在当前合同条款范围内。
+- `audit_logs` 中 `entity_type = 'draft'` 的记录：草稿保存（`save_draft`）、转正提交（`submit_draft`，带对应 `suggestion_id`）、丢弃（`delete_draft`），其 `details.clause_id` 均在当前合同条款范围内，按后端 SQL 层过滤，不靠前端。
+- 草稿持久化到 SQLite 的 `suggestion_drafts` 表，唯一约束 `(clause_id, user_id)`，重启前后端不丢失。
 
 ---
 
@@ -192,10 +214,13 @@ zgw-00129/
 |------|------|------|
 | POST | `/api/auth/login` | 登录取 Token |
 | GET  | `/api/clauses?contract_id=X&has_pending=true&risk_level=high` | 条款列表过滤 |
-| POST | `/api/clauses/:id/suggestions` | 创建建议（含冲突检测） |
+| GET  | `/api/clauses/:id/drafts` | **读取当前用户草稿**（含 `version_conflict` 与 `current_version` 字段） |
+| POST | `/api/clauses/:id/drafts` | **保存/更新草稿**（upsert，按 clause_id + user_id 唯一） |
+| DELETE | `/api/clauses/:id/drafts/:draftId` | **删除草稿**（只能删本人的） |
+| POST | `/api/clauses/:id/suggestions` | 创建建议（含冲突检测），成功后自动清同条款同用户草稿 |
 | POST | `/api/clauses/:id/suggestions/:sid/merge` | 合并建议（触发 409 冲突） |
 | POST | `/api/clauses/:id/rollback` | 版本回滚（admin，可测不存在版本） |
-| GET  | `/api/reports/contract/:id/export` | 导出完整评审包 |
+| GET  | `/api/reports/contract/:id/export` | 导出完整评审包（含 drafts 与草稿审计，按合同隔离） |
 | GET  | `/api/reports/audit-logs` | 审计日志 |
 
 ---
