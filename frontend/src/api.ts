@@ -69,7 +69,11 @@ export const clausesApi = {
   saveDraft: (clauseId: string, data: any) =>
     api.post<SuggestionDraft>(`/clauses/${clauseId}/drafts`, data).then(r => r.data),
   deleteDraft: (clauseId: string, draftId: string) =>
-    api.delete(`/clauses/${clauseId}/drafts/${draftId}`).then(r => r.data)
+    api.delete(`/clauses/${clauseId}/drafts/${draftId}`).then(r => r.data),
+  restoreDraft: (clauseId: string) =>
+    api.post<SuggestionDraft>(`/clauses/${clauseId}/drafts/restore`).then(r => r.data),
+  draftConflictAction: (clauseId: string, action: 'continue' | 'copy' | 'discard') =>
+    api.post(`/clauses/${clauseId}/drafts/conflict-action`, { action }).then(r => r.data)
 };
 
 export const reportsApi = {

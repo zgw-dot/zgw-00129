@@ -20,7 +20,11 @@ const ACTION_COLORS: Record<string, string> = {
   rollback: 'orange',
   save_draft: 'volcano',
   submit_draft: 'purple',
-  delete_draft: 'red'
+  delete_draft: 'red',
+  restore_draft: 'lime',
+  draft_conflict_continue: 'gold',
+  draft_conflict_copy: 'cyan',
+  draft_conflict_discard: 'red'
 };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -36,7 +40,11 @@ const ACTION_LABELS: Record<string, string> = {
   rollback: '版本回滚',
   save_draft: '保存草稿',
   submit_draft: '草稿转正提交',
-  delete_draft: '丢弃草稿'
+  delete_draft: '丢弃草稿',
+  restore_draft: '恢复草稿',
+  draft_conflict_continue: '冲突-继续编辑',
+  draft_conflict_copy: '冲突-复制到新版本',
+  draft_conflict_discard: '冲突-放弃草稿'
 };
 
 const ENTITY_LABELS: Record<string, string> = {

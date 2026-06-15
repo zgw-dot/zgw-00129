@@ -416,9 +416,29 @@ router.get('/:id/drafts', requireRole('legal', 'business', 'admin'), (req: Reque
     res.json(null);
     return;
   }
-  const clause = db.prepare('SELECT current_version FROM clauses WHERE id = ?').get(req.params.id) as any;
+  const clause = db.prepare('SELECT current_version, updated_at FROM clauses WHERE id = ?').get(req.params.id) as any;
   const version_conflict = clause && draft.base_version < clause.current_version;
-  res.json({ ...draft, version_conflict, current_version: clause?.current_version });
+  let conflict_detail = null;
+  if (version_conflict) {
+    const newerVersions = db.prepare(`
+      SELECT v.version_number, v.change_summary, v.created_at, u.display_name
+      FROM clause_versions v LEFT JOIN users u ON v.created_by = u.id
+      WHERE v.clause_id = ? AND v.version_number > ?
+      ORDER BY v.version_number ASC
+    `).all(req.params.id, draft.base_version);
+    conflict_detail = {
+      base_version: draft.base_version,
+      current_version: clause.current_version,
+      newer_versions: newerVersions
+    };
+  }
+  res.json({
+    ...draft,
+    version_conflict,
+    current_version: clause?.current_version,
+    last_save_time: draft.updated_at,
+    conflict_detail
+  });
 });
 
 router.post('/:id/drafts', requireRole('legal', 'business', 'admin'), (req: Request, res: Response) => {
@@ -478,6 +498,114 @@ router.post('/:id/drafts', requireRole('legal', 'business', 'admin'), (req: Requ
   const draft = db.prepare('SELECT * FROM suggestion_drafts WHERE id = ?').get(draftId);
   const version_conflict = base_version < clause.current_version;
   res.json({ ...draft, version_conflict, current_version: clause.current_version });
+});
+
+router.post('/:id/drafts/restore', requireRole('legal', 'business', 'admin'), (req: Request, res: Response) => {
+  const draft = db.prepare(
+    'SELECT * FROM suggestion_drafts WHERE clause_id = ? AND user_id = ?'
+  ).get(req.params.id, req.user!.userId) as any;
+  if (!draft) {
+    res.status(404).json({ error: '草稿不存在' });
+    return;
+  }
+  const clause = db.prepare('SELECT current_version FROM clauses WHERE id = ?').get(req.params.id) as any;
+  const version_conflict = clause && draft.base_version < clause.current_version;
+
+  createAuditLog('restore_draft', 'draft', draft.id, req.user!.userId, req.user!.role, {
+    clause_id: draft.clause_id,
+    base_version: draft.base_version,
+    current_version: clause?.current_version,
+    version_conflict
+  });
+
+  let conflict_detail = null;
+  if (version_conflict) {
+    const newerVersions = db.prepare(`
+      SELECT v.version_number, v.change_summary, v.created_at, u.display_name
+      FROM clause_versions v LEFT JOIN users u ON v.created_by = u.id
+      WHERE v.clause_id = ? AND v.version_number > ?
+      ORDER BY v.version_number ASC
+    `).all(req.params.id, draft.base_version);
+    conflict_detail = {
+      base_version: draft.base_version,
+      current_version: clause.current_version,
+      newer_versions: newerVersions
+    };
+  }
+
+  res.json({
+    ...draft,
+    version_conflict,
+    current_version: clause?.current_version,
+    last_save_time: draft.updated_at,
+    conflict_detail
+  });
+});
+
+router.post('/:id/drafts/conflict-action', requireRole('legal', 'business', 'admin'), (req: Request, res: Response) => {
+  const { action } = req.body;
+  if (!action || !['continue', 'copy', 'discard'].includes(action)) {
+    res.status(400).json({ error: '冲突操作类型无效，必须为 continue/copy/discard' });
+    return;
+  }
+  const draft = db.prepare(
+    'SELECT * FROM suggestion_drafts WHERE clause_id = ? AND user_id = ?'
+  ).get(req.params.id, req.user!.userId) as any;
+  if (!draft) {
+    res.status(404).json({ error: '草稿不存在' });
+    return;
+  }
+  const clause = db.prepare('SELECT * FROM clauses WHERE id = ?').get(req.params.id) as any;
+  if (!clause) {
+    res.status(404).json({ error: '条款不存在' });
+    return;
+  }
+
+  const auditAction = action === 'continue' ? 'draft_conflict_continue'
+    : action === 'copy' ? 'draft_conflict_copy'
+    : 'draft_conflict_discard';
+
+  createAuditLog(auditAction, 'draft', draft.id, req.user!.userId, req.user!.role, {
+    clause_id: draft.clause_id,
+    base_version: draft.base_version,
+    current_version: clause.current_version,
+    conflict_action: action
+  });
+
+  if (action === 'discard') {
+    db.prepare('DELETE FROM suggestion_drafts WHERE id = ?').run(draft.id);
+    res.json({ success: true, action: 'discard' });
+    return;
+  }
+
+  if (action === 'continue') {
+    const version_conflict = draft.base_version < clause.current_version;
+    res.json({
+      ...draft,
+      version_conflict,
+      current_version: clause.current_version,
+      last_save_time: draft.updated_at,
+      action: 'continue'
+    });
+    return;
+  }
+
+  if (action === 'copy') {
+    db.prepare(`
+      UPDATE suggestion_drafts SET base_version = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(clause.current_version, draft.id);
+    const updated = db.prepare('SELECT * FROM suggestion_drafts WHERE id = ?').get(draft.id);
+    res.json({
+      ...updated,
+      version_conflict: false,
+      current_version: clause.current_version,
+      last_save_time: (updated as any).updated_at,
+      action: 'copy'
+    });
+    return;
+  }
 });
 
 router.delete('/:id/drafts/:draftId', requireRole('legal', 'business', 'admin'), (req: Request, res: Response) => {

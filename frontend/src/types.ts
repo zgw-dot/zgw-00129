@@ -104,6 +104,17 @@ export interface SuggestionDraft {
   updated_at: string;
   version_conflict?: boolean;
   current_version?: number;
+  last_save_time?: string;
+  conflict_detail?: {
+    base_version: number;
+    current_version: number;
+    newer_versions: Array<{
+      version_number: number;
+      change_summary: string;
+      created_at: string;
+      display_name: string;
+    }>;
+  } | null;
 }
 
 export interface LoginResponse {

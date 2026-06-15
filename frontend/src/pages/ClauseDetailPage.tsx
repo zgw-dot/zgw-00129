@@ -38,6 +38,8 @@ const ClauseDetailPage: React.FC = () => {
   const [currentDraft, setCurrentDraft] = useState<SuggestionDraft | null>(null);
   const [draftSaving, setDraftSaving] = useState(false);
   const [draftConflictHandled, setDraftConflictHandled] = useState(false);
+  const [restorePromptOpen, setRestorePromptOpen] = useState(false);
+  const [restoring, setRestoring] = useState(false);
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadClause = async () => {
@@ -49,6 +51,21 @@ const ClauseDetailPage: React.FC = () => {
   };
 
   useEffect(() => { loadClause(); }, [clauseId]);
+
+  useEffect(() => {
+    if (clause && ['legal', 'business', 'admin'].includes(user.role)) {
+      (async () => {
+        try {
+          const draft = await clausesApi.getDraft(clauseId!);
+          if (draft) {
+            setCurrentDraft(draft);
+            setRestorePromptOpen(true);
+            setDraftConflictHandled(!draft.version_conflict);
+          }
+        } catch {}
+      })();
+    }
+  }, [clauseId, clause]);
 
   const loadDraft = useCallback(async () => {
     try {
@@ -101,6 +118,7 @@ const ClauseDetailPage: React.FC = () => {
       await clausesApi.deleteDraft(clauseId!, currentDraft.id);
       setCurrentDraft(null);
       setDraftConflictHandled(true);
+      setRestorePromptOpen(false);
       suggestionForm.resetFields();
       message.success('草稿已丢弃');
     } catch (e: any) {
@@ -108,30 +126,44 @@ const ClauseDetailPage: React.FC = () => {
     }
   };
 
-  const handleDraftConflictAction = (action: 'continue' | 'discard' | 'copy') => {
-    if (action === 'discard') {
-      handleDiscardDraft();
-      return;
-    }
-    if (action === 'continue') {
+  const handleRestoreContinue = async () => {
+    if (!currentDraft) return;
+    try {
+      setRestoring(true);
+      await clausesApi.restoreDraft(clauseId!);
       setDraftConflictHandled(true);
-      return;
+      setRestorePromptOpen(false);
+      message.success('已恢复上次编辑草稿');
+    } catch (e: any) {
+      message.error(e.response?.data?.error || '恢复草稿失败');
+    } finally {
+      setRestoring(false);
     }
-    if (action === 'copy') {
-      if (currentDraft && clause) {
-        suggestionForm.setFieldsValue({
-          base_version: clause.current_version,
-          type: currentDraft.type,
-          content: currentDraft.content,
-          amended_title: currentDraft.amended_title,
-          amended_content: currentDraft.amended_content,
-          risk_level: currentDraft.risk_level,
-          exclusive_role: currentDraft.exclusive_role || 'all'
-        });
+  };
+
+  const handleDraftConflictAction = async (action: 'continue' | 'discard' | 'copy') => {
+    if (!currentDraft || !clause) return;
+    try {
+      setRestoring(true);
+      const res = await clausesApi.draftConflictAction(clauseId!, action);
+      if (action === 'discard') {
+        setCurrentDraft(null);
         setDraftConflictHandled(true);
-        saveDraft(suggestionForm.getFieldsValue());
+        setRestorePromptOpen(false);
+        suggestionForm.resetFields();
+        message.success('草稿已丢弃');
+      } else if (action === 'continue') {
+        setDraftConflictHandled(true);
+        message.info('继续基于旧版本编辑');
+      } else if (action === 'copy') {
+        setCurrentDraft(res as SuggestionDraft);
+        setDraftConflictHandled(true);
         message.info('已将草稿内容复制到基于当前版本，请继续编辑');
       }
+    } catch (e: any) {
+      message.error(e.response?.data?.error || '操作失败');
+    } finally {
+      setRestoring(false);
     }
   };
 
@@ -317,6 +349,88 @@ const ClauseDetailPage: React.FC = () => {
               {clause.content}
             </div>
           </Card>
+
+          {restorePromptOpen && currentDraft && (
+            <Alert
+              style={{ marginTop: 16 }}
+              type={currentDraft.version_conflict ? 'warning' : 'info'}
+              showIcon
+              icon={currentDraft.version_conflict ? <WarningOutlined /> : <SaveOutlined />}
+              message={currentDraft.version_conflict ? '检测到上次编辑的草稿存在版本冲突' : '检测到上次未提交的草稿'}
+              description={
+                <div>
+                  <Paragraph style={{ marginBottom: 8 }}>
+                    您在 <Text strong>{dayjs(currentDraft.last_save_time || currentDraft.updated_at).format('YYYY-MM-DD HH:mm:ss')}</Text> 保存了草稿，基于条款版本 <Tag color="blue">v{currentDraft.base_version}</Tag>。
+                    {currentDraft.version_conflict && (
+                      <>当前条款已更新至 <Tag color="red">v{currentDraft.current_version || clause.current_version}</Tag>，草稿基于的版本已过期。</>
+                    )}
+                    {!currentDraft.version_conflict && (
+                      <>条款版本未变化，可直接继续编辑。</>
+                    )}
+                  </Paragraph>
+                  {currentDraft.version_conflict && currentDraft.conflict_detail?.newer_versions && currentDraft.conflict_detail.newer_versions.length > 0 && (
+                    <div style={{ marginBottom: 8, padding: '8px 12px', background: '#fffbe6', borderRadius: 4, border: '1px solid #ffe58f' }}>
+                      <Text strong style={{ fontSize: 12 }}>版本变更记录：</Text>
+                      <ul style={{ margin: '4px 0 0', paddingLeft: 20, fontSize: 12 }}>
+                        {currentDraft.conflict_detail!.newer_versions.map((v: any) => (
+                          <li key={v.version_number}>
+                            v{v.version_number} · {v.display_name} · {v.change_summary || '无摘要'} · {dayjs(v.created_at).format('MM-DD HH:mm')}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <Space style={{ marginTop: 4 }}>
+                    {!currentDraft.version_conflict && (
+                      <Button
+                        type="primary"
+                        icon={<EditOutlined />}
+                        loading={restoring}
+                        onClick={handleRestoreContinue}
+                      >
+                        一键继续编辑
+                      </Button>
+                    )}
+                    {currentDraft.version_conflict && (
+                      <>
+                        <Button
+                          size="small"
+                          icon={<CopyOutlined />}
+                          loading={restoring}
+                          onClick={() => handleDraftConflictAction('copy')}
+                        >
+                          复制内容到新版本
+                        </Button>
+                        <Button
+                          size="small"
+                          loading={restoring}
+                          onClick={() => handleDraftConflictAction('continue')}
+                        >
+                          继续编辑（基于旧版本）
+                        </Button>
+                      </>
+                    )}
+                    <Button
+                      size="small"
+                      danger
+                      icon={<DeleteOutlined />}
+                      loading={restoring}
+                      onClick={handleDraftConflictAction ? () => handleDraftConflictAction('discard') : handleDiscardDraft}
+                    >
+                      放弃草稿
+                    </Button>
+                    <Button
+                      size="small"
+                      type="link"
+                      onClick={() => setRestorePromptOpen(false)}
+                    >
+                      稍后处理
+                    </Button>
+                  </Space>
+                </div>
+              }
+            />
+          )}
 
           <Card
             style={{ marginTop: 16 }}
