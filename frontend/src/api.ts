@@ -37,6 +37,66 @@ export const authApi = {
   users: () => api.get<User[]>('/auth/users').then(r => r.data)
 };
 
+export interface ImportPrecheckResult {
+  contract_id: string;
+  total_input: number;
+  new_count: number;
+  update_count: number;
+  skip_count: number;
+  error_count: number;
+  blocked_count: number;
+  new_clauses: Array<{
+    clause_number: string;
+    title: string;
+    content: string;
+    risk_level: string;
+  }>;
+  update_clauses: Array<{
+    clause_id: string;
+    clause_number: string;
+    old_title: string;
+    new_title: string;
+    old_content: string;
+    new_content: string;
+    old_risk_level: string;
+    new_risk_level: string;
+    current_version: number;
+    has_pending_suggestions: boolean;
+    pending_suggestions_count: number;
+    pending_suggestions: any[];
+    has_drafts: boolean;
+    drafts: any[];
+    blocked: boolean;
+  }>;
+  skip_clauses: Array<{
+    clause_id: string;
+    clause_number: string;
+    title: string;
+    current_version: number;
+    risk_level: string;
+  }>;
+  errors: string[];
+}
+
+export interface ImportConfirmOverride {
+  clause_number: string;
+  reason: string;
+}
+
+export interface ImportResult {
+  import_mode: 'add_only' | 'update_by_number';
+  imported_new: any[];
+  updated: any[];
+  skipped: any[];
+  blocked: any[];
+  errors: string[];
+  new_count: number;
+  update_count: number;
+  skip_count: number;
+  block_count: number;
+  error_count: number;
+}
+
 export const contractsApi = {
   list: () => api.get<Contract[]>('/contracts').then(r => r.data),
   create: (data: { name: string; description?: string }) =>
@@ -44,7 +104,15 @@ export const contractsApi = {
   get: (id: string) => api.get<Contract>(`/contracts/${id}`).then(r => r.data),
   delete: (id: string) => api.delete(`/contracts/${id}`).then(r => r.data),
   importClauses: (contractId: string, clauses: any[]) =>
-    api.post(`/contracts/${contractId}/import`, { clauses }).then(r => r.data)
+    api.post(`/contracts/${contractId}/import`, { clauses }).then(r => r.data),
+  precheckImport: (contractId: string, clauses: any[]) =>
+    api.post<ImportPrecheckResult>(`/contracts/${contractId}/import-precheck`, { clauses }).then(r => r.data),
+  confirmImport: (contractId: string, mode: 'add_only' | 'update_by_number', clauses: any[], confirmOverrides?: ImportConfirmOverride[]) =>
+    api.post<ImportResult>(`/contracts/${contractId}/import`, {
+      mode,
+      clauses,
+      confirm_overrides: confirmOverrides || []
+    }).then(r => r.data)
 };
 
 export const clausesApi = {
