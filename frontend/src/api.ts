@@ -1,7 +1,8 @@
 import axios from 'axios';
 import {
   LoginResponse, Contract, Clause, Suggestion, AuditLog, ClauseVersion, User, SuggestionDraft,
-  CountersignRound, CountersignRoundDetail, CountersignParticipant
+  CountersignRound, CountersignRoundDetail, CountersignParticipant,
+  Handover, HandoverDetail, HandoverConflict
 } from './types';
 
 const API_BASE = '/api';
@@ -202,6 +203,35 @@ export const countersignApi = {
     ).then(r => r.data),
   rerequestRereview: (roundId: string, data: RereviewRequest) =>
     api.post(`/countersigns/${roundId}/rerequest-rereview`, data).then(r => r.data)
+};
+
+export interface HandoverPreviewRequest {
+  to_user_id: string;
+  scope: 'all' | 'drafts' | 'countersigns' | 'tickets' | 'custom';
+  custom_items?: Array<{ item_type: string; item_id: string }>;
+}
+
+export interface HandoverCreateRequest extends HandoverPreviewRequest {
+  reason: string;
+}
+
+export const handoverApi = {
+  preview: (data: HandoverPreviewRequest) =>
+    api.post('/handovers/preview', data).then(r => r.data),
+  create: (data: HandoverCreateRequest) =>
+    api.post<{ handover: Handover; items: any[] }>('/handovers', data).then(r => r.data),
+  list: (params?: { status?: string; from_user_id?: string; to_user_id?: string }) =>
+    api.get<Handover[]>('/handovers', { params }).then(r => r.data),
+  get: (id: string) =>
+    api.get<HandoverDetail>(`/handovers/${id}`).then(r => r.data),
+  sign: (id: string, note?: string) =>
+    api.post<Handover>(`/handovers/${id}/sign`, { note }).then(r => r.data),
+  withdraw: (id: string, reason: string) =>
+    api.post<Handover>(`/handovers/${id}/withdraw`, { reason }).then(r => r.data),
+  conflicts: (id: string) =>
+    api.get<{ handover_id: string; conflict_count: number; conflicts: HandoverConflict[] }>(`/handovers/${id}/conflicts`).then(r => r.data),
+  reconfirm: (id: string, data: { remove_conflict_items?: Array<{ item_type: string; item_id: string }>; force?: boolean }) =>
+    api.post<Handover>(`/handovers/${id}/reconfirm`, data).then(r => r.data)
 };
 
 export default api;

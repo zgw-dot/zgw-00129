@@ -313,3 +313,105 @@ export const COUNTERSIGN_HISTORY_ACTION_LABELS: Record<CountersignHistoryAction,
   clause_version_change: '条款版本变更',
   rereview_requested: '请求重审'
 };
+
+export type HandoverStatus = 'pending' | 'signed' | 'withdrawn' | 'conflict';
+export type HandoverScope = 'all' | 'drafts' | 'countersigns' | 'tickets' | 'custom';
+export type HandoverItemType = 'draft' | 'countersign' | 'ticket' | 'suggestion';
+export type HandoverHistoryAction = 'create' | 'sign' | 'withdraw' | 'conflict_detected' | 'conflict_resolved' | 'reconfirm';
+
+export interface Handover {
+  id: string;
+  handover_no: string;
+  from_user_id: string;
+  to_user_id: string;
+  from_user_name?: string;
+  to_user_name?: string;
+  scope: HandoverScope;
+  reason: string;
+  status: HandoverStatus;
+  signed_at?: string | null;
+  sign_note?: string | null;
+  withdrawn_at?: string | null;
+  withdraw_reason?: string | null;
+  withdrawn_by?: string | null;
+  conflict_detail?: string | null;
+  conflict_resolved?: number | boolean;
+  created_at: string;
+  updated_at: string;
+  item_count?: number;
+}
+
+export interface HandoverItem {
+  id: string;
+  handover_id: string;
+  item_type: HandoverItemType;
+  item_id: string;
+  snapshot: Record<string, any> | null;
+  status_at_handover: string;
+  version_at_handover: number | null;
+  transferred: number | boolean;
+  created_at: string;
+}
+
+export interface HandoverHistoryItem {
+  id: string;
+  handover_id: string;
+  action: HandoverHistoryAction;
+  user_id?: string | null;
+  user_role?: string | null;
+  user_name?: string | null;
+  details: Record<string, any> | null;
+  created_at: string;
+}
+
+export interface HandoverDetail extends Handover {
+  items: HandoverItem[];
+  history: HandoverHistoryItem[];
+}
+
+export interface HandoverConflict {
+  item_type: HandoverItemType;
+  item_id: string;
+  field: string;
+  old_value: any;
+  new_value: any;
+  description: string;
+}
+
+export const HANDOVER_STATUS_COLORS: Record<HandoverStatus, string> = {
+  pending: 'blue',
+  signed: 'green',
+  withdrawn: 'default',
+  conflict: 'orange'
+};
+
+export const HANDOVER_STATUS_LABELS: Record<HandoverStatus, string> = {
+  pending: '待签收',
+  signed: '已签收',
+  withdrawn: '已撤回',
+  conflict: '有冲突'
+};
+
+export const HANDOVER_SCOPE_LABELS: Record<HandoverScope, string> = {
+  all: '全部',
+  drafts: '草稿',
+  countersigns: '会签',
+  tickets: '复查工单',
+  custom: '自定义'
+};
+
+export const HANDOVER_ITEM_TYPE_LABELS: Record<HandoverItemType, string> = {
+  draft: '草稿',
+  countersign: '会签',
+  ticket: '复查工单',
+  suggestion: '建议'
+};
+
+export const HANDOVER_HISTORY_ACTION_LABELS: Record<HandoverHistoryAction, string> = {
+  create: '创建交接',
+  sign: '签收',
+  withdraw: '撤回',
+  conflict_detected: '检测到冲突',
+  conflict_resolved: '冲突已解决',
+  reconfirm: '重新确认'
+};

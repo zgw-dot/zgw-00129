@@ -9,6 +9,7 @@ import clauseRoutes from './routes/clauses';
 import exportRoutes from './routes/export';
 import countersignRoutes from './routes/countersigns';
 import reviewTicketRoutes from './routes/reviewTickets';
+import handoverRoutes from './routes/handovers';
 
 const PORT = Number(process.env.PORT) || 3001;
 
@@ -35,6 +36,7 @@ async function bootstrap() {
   app.use('/api/reports', exportRoutes);
   app.use('/api/countersigns', countersignRoutes);
   app.use('/api/review-tickets', reviewTicketRoutes);
+  app.use('/api/handovers', handoverRoutes);
 
   const dataDir = path.join(__dirname, '..', 'data');
   if (fs.existsSync(dataDir)) {

@@ -274,6 +274,48 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
     });
   }
 
+  let handoverData: any[] = [];
+  let handoverItems: any[] = [];
+  let handoverHistory: any[] = [];
+  if (roundIds.length > 0) {
+    handoverData = db.prepare(`
+      SELECT h.*, u.display_name as from_user_name, u2.display_name as to_user_name
+      FROM handovers h
+      LEFT JOIN users u ON h.from_user_id = u.id
+      LEFT JOIN users u2 ON h.to_user_id = u.id
+      WHERE (h.from_user_id IN (
+        SELECT DISTINCT p.user_id FROM countersign_participants p
+        WHERE p.round_id IN (${roundIds.map(() => '?').join(',')}) AND p.is_replaced = 0
+      ) OR h.to_user_id IN (
+        SELECT DISTINCT p.user_id FROM countersign_participants p
+        WHERE p.round_id IN (${roundIds.map(() => '?').join(',')}) AND p.is_replaced = 0
+      ))
+      ORDER BY h.created_at ASC
+    `).all(...roundIds, ...roundIds);
+
+    const handoverIds = (handoverData as any[]).map(h => (h as any).id);
+    if (handoverIds.length > 0) {
+      handoverItems = db.prepare(`
+        SELECT * FROM handover_items WHERE handover_id IN (${handoverIds.map(() => '?').join(',')})
+        ORDER BY created_at ASC
+      `).all(...handoverIds).map((i: any) => ({
+        ...i,
+        snapshot: i.snapshot ? JSON.parse(i.snapshot) : null
+      }));
+
+      handoverHistory = db.prepare(`
+        SELECT hh.*, u.display_name as user_name
+        FROM handover_history hh
+        LEFT JOIN users u ON hh.user_id = u.id
+        WHERE hh.handover_id IN (${handoverIds.map(() => '?').join(',')})
+        ORDER BY hh.created_at ASC
+      `).all(...handoverIds).map((h: any) => ({
+        ...h,
+        details: h.details ? JSON.parse(h.details) : null
+      }));
+    }
+  }
+
   const exportData = {
     exported_at: new Date().toISOString(),
     contract: {
@@ -327,6 +369,20 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
           need_more_info: (reviewTickets as any[]).filter((t: any) => t.trigger_type === 'need_more_info').length,
           admin_rereview: (reviewTickets as any[]).filter((t: any) => t.trigger_type === 'admin_rereview').length
         }
+      }
+    },
+    handovers: {
+      records: handoverData.map((h: any) => ({
+        ...h,
+        items: handoverItems.filter((i: any) => i.handover_id === h.id),
+        history: handoverHistory.filter((hh: any) => hh.handover_id === h.id)
+      })),
+      summary: {
+        total: handoverData.length,
+        pending: handoverData.filter((h: any) => h.status === 'pending').length,
+        signed: handoverData.filter((h: any) => h.status === 'signed').length,
+        withdrawn: handoverData.filter((h: any) => h.status === 'withdrawn').length,
+        conflict: handoverData.filter((h: any) => h.status === 'conflict').length
       }
     }
   };

@@ -9,6 +9,8 @@ import AuditLogsPage from './pages/AuditLogsPage';
 import ImportGuidePage from './pages/ImportGuidePage';
 import CountersignDetailPage from './pages/CountersignDetailPage';
 import MyCountersignsPage from './pages/MyCountersignsPage';
+import HandoversPage from './pages/HandoversPage';
+import HandoverDetailPage from './pages/HandoverDetailPage';
 
 function App() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
@@ -31,6 +33,8 @@ function App() {
         <Route path="/clauses/:clauseId" element={<ClauseDetailPage />} />
         <Route path="/my-countersigns" element={<MyCountersignsPage />} />
         <Route path="/countersigns/:roundId" element={<CountersignDetailPage />} />
+        <Route path="/handovers" element={<HandoversPage />} />
+        <Route path="/handovers/:id" element={<HandoverDetailPage />} />
         <Route path="/audit-logs" element={<AuditLogsPage />} />
         <Route path="/import-guide" element={<ImportGuidePage />} />
         <Route path="*" element={<Navigate to="/contracts" replace />} />

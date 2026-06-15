@@ -8,7 +8,8 @@ import {
   UserOutlined,
   SafetyCertificateOutlined,
   TeamOutlined,
-  AuditOutlined
+  AuditOutlined,
+  SwapOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store';
@@ -29,6 +30,7 @@ const MainLayout: React.FC<Props> = ({ children }) => {
   const selectedKey = (() => {
     if (location.pathname.startsWith('/countersigns')) return '/my-countersigns';
     if (location.pathname.startsWith('/my-countersigns')) return '/my-countersigns';
+    if (location.pathname.startsWith('/handovers')) return '/handovers';
     if (location.pathname.startsWith('/contracts')) return '/contracts';
     if (location.pathname.startsWith('/clauses')) return '/contracts';
     if (location.pathname.startsWith('/audit-logs')) return '/audit-logs';
@@ -45,6 +47,7 @@ const MainLayout: React.FC<Props> = ({ children }) => {
   const menuItems = [
     { key: '/contracts', icon: <FileTextOutlined />, label: '合同管理', onClick: () => navigate('/contracts') },
     { key: '/my-countersigns', icon: <AuditOutlined />, label: '我的会签', onClick: () => navigate('/my-countersigns') },
+    { key: '/handovers', icon: <SwapOutlined />, label: '评审交接', onClick: () => navigate('/handovers') },
     { key: '/audit-logs', icon: <HistoryOutlined />, label: '操作日志', onClick: () => navigate('/audit-logs') },
     { key: '/import-guide', icon: <ImportOutlined />, label: '导入格式说明', onClick: () => navigate('/import-guide') }
   ];

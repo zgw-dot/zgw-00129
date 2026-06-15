@@ -337,6 +337,56 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_review_tickets_status ON review_tickets(status);
     CREATE INDEX IF NOT EXISTS idx_review_tickets_trigger ON review_tickets(trigger_type);
     CREATE INDEX IF NOT EXISTS idx_review_ticket_history_ticket ON review_ticket_history(ticket_id);
+
+    CREATE TABLE IF NOT EXISTS handovers (
+      id TEXT PRIMARY KEY,
+      handover_no TEXT NOT NULL UNIQUE,
+      from_user_id TEXT NOT NULL REFERENCES users(id),
+      to_user_id TEXT NOT NULL REFERENCES users(id),
+      scope TEXT NOT NULL DEFAULT 'all' CHECK (scope IN ('all', 'drafts', 'countersigns', 'tickets', 'custom')),
+      reason TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'signed', 'withdrawn', 'conflict')),
+      signed_at DATETIME,
+      sign_note TEXT,
+      withdrawn_at DATETIME,
+      withdraw_reason TEXT,
+      withdrawn_by TEXT REFERENCES users(id),
+      conflict_detail TEXT,
+      conflict_resolved INTEGER NOT NULL DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS handover_items (
+      id TEXT PRIMARY KEY,
+      handover_id TEXT NOT NULL REFERENCES handovers(id) ON DELETE CASCADE,
+      item_type TEXT NOT NULL CHECK (item_type IN ('draft', 'countersign', 'ticket', 'suggestion')),
+      item_id TEXT NOT NULL,
+      snapshot TEXT,
+      status_at_handover TEXT,
+      version_at_handover INTEGER,
+      transferred INTEGER NOT NULL DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS handover_history (
+      id TEXT PRIMARY KEY,
+      handover_id TEXT NOT NULL REFERENCES handovers(id) ON DELETE CASCADE,
+      action TEXT NOT NULL CHECK (action IN (
+        'create', 'sign', 'withdraw', 'conflict_detected', 'conflict_resolved', 'reconfirm'
+      )),
+      user_id TEXT REFERENCES users(id),
+      user_role TEXT,
+      details TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_handovers_from ON handovers(from_user_id);
+    CREATE INDEX IF NOT EXISTS idx_handovers_to ON handovers(to_user_id);
+    CREATE INDEX IF NOT EXISTS idx_handovers_status ON handovers(status);
+    CREATE INDEX IF NOT EXISTS idx_handover_items_handover ON handover_items(handover_id);
+    CREATE INDEX IF NOT EXISTS idx_handover_items_type ON handover_items(item_type, item_id);
+    CREATE INDEX IF NOT EXISTS idx_handover_history_handover ON handover_history(handover_id);
   `);
 
   try {
