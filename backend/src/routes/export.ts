@@ -58,13 +58,17 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
     ORDER BY s.clause_id, s.created_at DESC
   `).all(...clauseIds) : [];
 
+  const draftAuditClause = clauseIds.length > 0
+    ? clauseIds.map(cid => `a.details LIKE '%"clause_id":"${cid}"%'`).join(' OR ')
+    : '1=0';
+
   const auditLogs = db.prepare(`
     SELECT a.*, u.display_name as user_name
     FROM audit_logs a LEFT JOIN users u ON a.user_id = u.id
     WHERE (a.entity_type = 'contract' AND a.entity_id = ?)
        OR (a.entity_type = 'clause' AND a.entity_id IN (${clauseIds.map(() => '?').join(',')}))
        OR (a.entity_type = 'suggestion' AND a.entity_id IN (${(suggestions as any[]).map(() => '?').join(',')}))
-       OR (a.entity_type = 'draft')
+       OR (a.entity_type = 'draft' AND (${draftAuditClause}))
     ORDER BY a.created_at ASC
   `).all(req.params.id, ...clauseIds, ...(suggestions as any[]).map(s => (s as any).id)).map((log: any) => ({
     ...log,
