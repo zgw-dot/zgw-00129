@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { LoginResponse, Contract, Clause, Suggestion, AuditLog, ClauseVersion, User } from './types';
+import { LoginResponse, Contract, Clause, Suggestion, AuditLog, ClauseVersion, User, SuggestionDraft } from './types';
 
 const API_BASE = '/api';
 
@@ -63,7 +63,13 @@ export const clausesApi = {
   mergeSuggestion: (clauseId: string, sid: string, reason: string) =>
     api.post(`/clauses/${clauseId}/suggestions/${sid}/merge`, { reason }).then(r => r.data),
   rollback: (clauseId: string, target_version: number, reason: string) =>
-    api.post(`/clauses/${clauseId}/rollback`, { target_version, reason }).then(r => r.data)
+    api.post(`/clauses/${clauseId}/rollback`, { target_version, reason }).then(r => r.data),
+  getDraft: (clauseId: string) =>
+    api.get<SuggestionDraft | null>(`/clauses/${clauseId}/drafts`).then(r => r.data),
+  saveDraft: (clauseId: string, data: any) =>
+    api.post<SuggestionDraft>(`/clauses/${clauseId}/drafts`, data).then(r => r.data),
+  deleteDraft: (clauseId: string, draftId: string) =>
+    api.delete(`/clauses/${clauseId}/drafts/${draftId}`).then(r => r.data)
 };
 
 export const reportsApi = {

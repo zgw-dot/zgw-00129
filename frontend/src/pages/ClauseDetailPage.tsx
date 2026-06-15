@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   Row, Col, Tag, Typography, Button, Space, Card, Divider, Tabs, Modal, Form,
@@ -7,12 +7,13 @@ import {
 import {
   ArrowLeftOutlined, EditOutlined, MessageOutlined, HistoryOutlined,
   RollbackOutlined, FileTextOutlined, PlusOutlined, WarningOutlined,
-  LockOutlined, TeamOutlined, SafetyOutlined, ReloadOutlined
+  LockOutlined, TeamOutlined, SafetyOutlined, ReloadOutlined,
+  SaveOutlined, DeleteOutlined, CopyOutlined
 } from '@ant-design/icons';
 import { clausesApi, reportsApi } from '../api';
 import {
   Clause, ClauseVersion, Suggestion, SuggestionType, RiskLevel,
-  RISK_LABELS, RISK_COLORS, ROLE_LABELS, UserRole
+  RISK_LABELS, RISK_COLORS, ROLE_LABELS, UserRole, SuggestionDraft
 } from '../types';
 import { useAuthStore } from '../store';
 import SuggestionCard from '../components/SuggestionCard';
@@ -34,6 +35,10 @@ const ClauseDetailPage: React.FC = () => {
   const [rollbackOpen, setRollbackOpen] = useState(false);
   const [rollbackForm] = Form.useForm();
   const [compareVersions, setCompareVersions] = useState<{ a?: ClauseVersion; b?: ClauseVersion }>({});
+  const [currentDraft, setCurrentDraft] = useState<SuggestionDraft | null>(null);
+  const [draftSaving, setDraftSaving] = useState(false);
+  const [draftConflictHandled, setDraftConflictHandled] = useState(false);
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const loadClause = async () => {
     setLoading(true);
@@ -45,10 +50,122 @@ const ClauseDetailPage: React.FC = () => {
 
   useEffect(() => { loadClause(); }, [clauseId]);
 
+  const loadDraft = useCallback(async () => {
+    try {
+      const draft = await clausesApi.getDraft(clauseId!);
+      setCurrentDraft(draft);
+      if (draft && draft.version_conflict) {
+        setDraftConflictHandled(false);
+      } else {
+        setDraftConflictHandled(true);
+      }
+      return draft;
+    } catch {
+      setCurrentDraft(null);
+      setDraftConflictHandled(true);
+      return null;
+    }
+  }, [clauseId]);
+
+  const saveDraft = useCallback(async (formValues: Record<string, any>) => {
+    if (!formValues.type || !formValues.base_version) return;
+    try {
+      setDraftSaving(true);
+      const draft = await clausesApi.saveDraft(clauseId!, formValues);
+      setCurrentDraft(draft);
+    } catch {
+    } finally {
+      setDraftSaving(false);
+    }
+  }, [clauseId]);
+
+  const handleFormChange = useCallback(() => {
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      const values = suggestionForm.getFieldsValue();
+      if (values.type && values.base_version) {
+        saveDraft(values);
+      }
+    }, 1500);
+  }, [suggestionForm, saveDraft]);
+
+  useEffect(() => {
+    return () => {
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    };
+  }, []);
+
+  const handleDiscardDraft = async () => {
+    if (!currentDraft) return;
+    try {
+      await clausesApi.deleteDraft(clauseId!, currentDraft.id);
+      setCurrentDraft(null);
+      setDraftConflictHandled(true);
+      suggestionForm.resetFields();
+      message.success('草稿已丢弃');
+    } catch (e: any) {
+      message.error(e.response?.data?.error || '丢弃草稿失败');
+    }
+  };
+
+  const handleDraftConflictAction = (action: 'continue' | 'discard' | 'copy') => {
+    if (action === 'discard') {
+      handleDiscardDraft();
+      return;
+    }
+    if (action === 'continue') {
+      setDraftConflictHandled(true);
+      return;
+    }
+    if (action === 'copy') {
+      if (currentDraft && clause) {
+        suggestionForm.setFieldsValue({
+          base_version: clause.current_version,
+          type: currentDraft.type,
+          content: currentDraft.content,
+          amended_title: currentDraft.amended_title,
+          amended_content: currentDraft.amended_content,
+          risk_level: currentDraft.risk_level,
+          exclusive_role: currentDraft.exclusive_role || 'all'
+        });
+        setDraftConflictHandled(true);
+        saveDraft(suggestionForm.getFieldsValue());
+        message.info('已将草稿内容复制到基于当前版本，请继续编辑');
+      }
+    }
+  };
+
+  const openSuggestionModal = async () => {
+    const draft = await loadDraft();
+    if (draft) {
+      suggestionForm.setFieldsValue({
+        type: draft.type,
+        base_version: draft.base_version,
+        content: draft.content,
+        amended_title: draft.amended_title,
+        amended_content: draft.amended_content,
+        risk_level: draft.risk_level,
+        exclusive_role: draft.exclusive_role || 'all'
+      });
+    } else {
+      suggestionForm.setFieldsValue({
+        base_version: clause?.current_version,
+        type: 'comment',
+        exclusive_role: 'all',
+        content: '',
+        amended_title: undefined,
+        amended_content: undefined,
+        risk_level: undefined
+      });
+    }
+    setShowNewSuggestion(true);
+  };
+
   const handleCreateSuggestion = async () => {
     try {
       const values = await suggestionForm.validateFields();
       const res = await clausesApi.createSuggestion(clauseId!, values);
+      setCurrentDraft(null);
       if (res.version_conflict) {
         modal.warning({
           title: <Space><WarningOutlined style={{ color: '#faad14' }} /> 版本冲突提示</Space>,
@@ -212,14 +329,12 @@ const ClauseDetailPage: React.FC = () => {
             }
             extra={
               <Space>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => {
-                  suggestionForm.setFieldsValue({
-                    base_version: clause.current_version,
-                    type: 'comment',
-                    exclusive_role: 'all'
-                  });
-                  setShowNewSuggestion(true);
-                }}>
+                {currentDraft && (
+                  <Tooltip title={`有未提交的草稿（基于 v${currentDraft.base_version}，${dayjs(currentDraft.updated_at).format('MM-DD HH:mm')} 保存）`}>
+                    <Tag icon={<SaveOutlined />} color="orange">有草稿</Tag>
+                  </Tooltip>
+                )}
+                <Button type="primary" icon={<PlusOutlined />} onClick={openSuggestionModal}>
                   发起建议
                 </Button>
               </Space>
@@ -303,27 +418,80 @@ const ClauseDetailPage: React.FC = () => {
             <PlusOutlined style={{ color: '#1677ff' }} />
             发起评审建议
             {roleLabel(user.role)}
+            {currentDraft && <Tag icon={<SaveOutlined />} color="orange">从草稿恢复</Tag>}
           </Space>
         }
         open={showNewSuggestion}
-        onCancel={() => setShowNewSuggestion(false)}
+        onCancel={() => {
+          if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+          setShowNewSuggestion(false);
+        }}
         onOk={handleCreateSuggestion}
         okText="提交建议"
         width={720}
         footer={(_, { OkBtn, CancelBtn }) => (
           <Space>
             <CancelBtn />
+            {currentDraft && (
+              <Button icon={<DeleteOutlined />} danger onClick={handleDiscardDraft}>
+                丢弃草稿
+              </Button>
+            )}
             <OkBtn />
           </Space>
         )}
       >
+        {currentDraft && currentDraft.version_conflict && !draftConflictHandled && (
+          <Alert
+            type="warning"
+            showIcon
+            icon={<WarningOutlined />}
+            style={{ marginBottom: 16 }}
+            message="草稿版本冲突"
+            description={
+              <div>
+                <Paragraph>
+                  您的草稿基于 <Tag color="blue">v{currentDraft.base_version}</Tag>，但条款已更新至 <Tag color="red">v{currentDraft.current_version || clause.current_version}</Tag>。
+                </Paragraph>
+                <Space style={{ marginTop: 8 }}>
+                  <Button size="small" type="primary" onClick={() => handleDraftConflictAction('continue')}>
+                    继续编辑（基于旧版本）
+                  </Button>
+                  <Button size="small" icon={<CopyOutlined />} onClick={() => handleDraftConflictAction('copy')}>
+                    复制内容到新版本
+                  </Button>
+                  <Button size="small" danger icon={<DeleteOutlined />} onClick={() => handleDraftConflictAction('discard')}>
+                    丢弃草稿
+                  </Button>
+                </Space>
+              </div>
+            }
+          />
+        )}
+        {currentDraft && draftConflictHandled && currentDraft.version_conflict && (
+          <Alert
+            type="info"
+            showIcon
+            style={{ marginBottom: 16 }}
+            message={`草稿基于 v${currentDraft.base_version}，当前条款为 v${clause.current_version}，提交时将提示版本冲突`}
+          />
+        )}
+        {draftSaving && (
+          <Alert
+            type="info"
+            showIcon
+            icon={<SaveOutlined />}
+            style={{ marginBottom: 16 }}
+            message="草稿自动保存中..."
+          />
+        )}
         <Alert
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
-          message={`您正在基于条款 v${clause.current_version} 提交建议。如提交前条款已被更新，系统将自动提示冲突。`}
+          message={`您正在基于条款 v${clause.current_version} 提交建议。如提交前条款已被更新，系统将自动提示冲突。编辑内容会自动保存为草稿。`}
         />
-        <Form form={suggestionForm} layout="vertical">
+        <Form form={suggestionForm} layout="vertical" onValuesChange={handleFormChange}>
           <Row gutter={12}>
             <Col span={12}>
               <Form.Item name="type" label="建议类型" rules={[{ required: true }]}>

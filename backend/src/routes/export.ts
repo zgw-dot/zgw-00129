@@ -64,11 +64,19 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
     WHERE (a.entity_type = 'contract' AND a.entity_id = ?)
        OR (a.entity_type = 'clause' AND a.entity_id IN (${clauseIds.map(() => '?').join(',')}))
        OR (a.entity_type = 'suggestion' AND a.entity_id IN (${(suggestions as any[]).map(() => '?').join(',')}))
+       OR (a.entity_type = 'draft')
     ORDER BY a.created_at ASC
   `).all(req.params.id, ...clauseIds, ...(suggestions as any[]).map(s => (s as any).id)).map((log: any) => ({
     ...log,
     details: log.details ? JSON.parse(log.details) : null
   }));
+
+  const drafts = clauseIds.length > 0 ? db.prepare(`
+    SELECT d.*, u.display_name as user_name, u.role as user_role
+    FROM suggestion_drafts d LEFT JOIN users u ON d.user_id = u.id
+    WHERE d.clause_id IN (${clauseIds.map(() => '?').join(',')})
+    ORDER BY d.updated_at DESC
+  `).all(...clauseIds) : [];
 
   const exportData = {
     exported_at: new Date().toISOString(),
@@ -83,6 +91,7 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
       versions: (versions as any[]).filter(v => v.clause_id === c.id),
       suggestions: (suggestions as any[]).filter(s => s.clause_id === c.id)
     })),
+    drafts,
     audit_logs: auditLogs
   };
 
@@ -112,10 +121,11 @@ router.get('/clause/:id/version-history', (req: Request, res: Response) => {
   const auditLogs = db.prepare(`
     SELECT a.*, u.display_name as user_name
     FROM audit_logs a LEFT JOIN users u ON a.user_id = u.id
-    WHERE a.entity_type IN ('clause', 'suggestion')
-      AND (a.entity_id = ? OR a.entity_id IN (${(suggestions as any[]).map(() => '?').join(',')}))
+    WHERE (a.entity_type IN ('clause', 'suggestion')
+      AND (a.entity_id = ? OR a.entity_id IN (${(suggestions as any[]).map(() => '?').join(',')})))
+       OR (a.entity_type = 'draft' AND a.details LIKE '%"clause_id":"' || ? || '"%')
     ORDER BY a.created_at ASC
-  `).all(req.params.id, ...(suggestions as any[]).map(s => (s as any).id)).map((log: any) => ({
+  `).all(req.params.id, ...(suggestions as any[]).map(s => (s as any).id), req.params.id).map((log: any) => ({
     ...log,
     details: log.details ? JSON.parse(log.details) : null
   }));

@@ -169,6 +169,22 @@ export async function initDatabase() {
       decision_reason TEXT
     );
 
+    CREATE TABLE IF NOT EXISTS suggestion_drafts (
+      id TEXT PRIMARY KEY,
+      clause_id TEXT NOT NULL REFERENCES clauses(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL REFERENCES users(id),
+      base_version INTEGER NOT NULL,
+      type TEXT NOT NULL CHECK (type IN ('comment', 'amendment')),
+      content TEXT NOT NULL DEFAULT '',
+      amended_title TEXT,
+      amended_content TEXT,
+      risk_level TEXT CHECK (risk_level IN ('low', 'medium', 'high', 'critical')),
+      exclusive_role TEXT CHECK (exclusive_role IN ('legal', 'business', 'all')),
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(clause_id, user_id)
+    );
+
     CREATE TABLE IF NOT EXISTS audit_logs (
       id TEXT PRIMARY KEY,
       action TEXT NOT NULL,
@@ -185,6 +201,7 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_suggestions_clause ON suggestions(clause_id);
     CREATE INDEX IF NOT EXISTS idx_suggestions_status ON suggestions(status);
     CREATE INDEX IF NOT EXISTS idx_audit_logs_entity ON audit_logs(entity_type, entity_id);
+  CREATE INDEX IF NOT EXISTS idx_drafts_clause_user ON suggestion_drafts(clause_id, user_id);
   `);
 
   process.on('beforeExit', () => {

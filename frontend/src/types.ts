@@ -89,6 +89,23 @@ export interface AuditLog {
   user_name?: string;
 }
 
+export interface SuggestionDraft {
+  id: string;
+  clause_id: string;
+  user_id: string;
+  base_version: number;
+  type: SuggestionType;
+  content: string;
+  amended_title?: string | null;
+  amended_content?: string | null;
+  risk_level?: RiskLevel | null;
+  exclusive_role?: ExclusiveRole | null;
+  created_at: string;
+  updated_at: string;
+  version_conflict?: boolean;
+  current_version?: number;
+}
+
 export interface LoginResponse {
   token: string;
   user: User;

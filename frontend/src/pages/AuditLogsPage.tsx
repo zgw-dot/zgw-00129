@@ -17,7 +17,10 @@ const ACTION_COLORS: Record<string, string> = {
   reject_suggestion: 'red',
   merge_suggestion: 'blue',
   new_version: 'geekblue',
-  rollback: 'orange'
+  rollback: 'orange',
+  save_draft: 'volcano',
+  submit_draft: 'purple',
+  delete_draft: 'red'
 };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -30,14 +33,18 @@ const ACTION_LABELS: Record<string, string> = {
   reject_suggestion: '驳回建议',
   merge_suggestion: '合并建议',
   new_version: '新版本生成',
-  rollback: '版本回滚'
+  rollback: '版本回滚',
+  save_draft: '保存草稿',
+  submit_draft: '草稿转正提交',
+  delete_draft: '丢弃草稿'
 };
 
 const ENTITY_LABELS: Record<string, string> = {
   user: '用户',
   contract: '合同',
   clause: '条款',
-  suggestion: '建议'
+  suggestion: '建议',
+  draft: '草稿'
 };
 
 const AuditLogsPage: React.FC = () => {
@@ -156,6 +163,7 @@ const AuditLogsPage: React.FC = () => {
               { value: 'contract', label: '合同' },
               { value: 'clause', label: '条款' },
               { value: 'suggestion', label: '建议' },
+              { value: 'draft', label: '草稿' },
               { value: 'user', label: '用户' }
             ]} />
           <Select value={action} onChange={setAction} style={{ width: 160 }}

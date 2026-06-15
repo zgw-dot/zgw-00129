@@ -155,6 +155,18 @@ router.post('/:id/suggestions', requireRole('legal', 'business', 'admin'), (req:
     version_conflict
   });
 
+  const draftRow = db.prepare(
+    'SELECT id FROM suggestion_drafts WHERE clause_id = ? AND user_id = ?'
+  ).get(clause.id, req.user!.userId) as any;
+  if (draftRow) {
+    db.prepare('DELETE FROM suggestion_drafts WHERE id = ?').run(draftRow.id);
+    createAuditLog('submit_draft', 'draft', draftRow.id, req.user!.userId, req.user!.role, {
+      clause_id: clause.id,
+      clause_number: clause.clause_number,
+      submitted_suggestion_id: id
+    });
+  }
+
   const suggestion = db.prepare(`
     SELECT s.*, u.display_name as creator_name
     FROM suggestions s LEFT JOIN users u ON s.created_by = u.id WHERE s.id = ?
@@ -394,6 +406,104 @@ router.get('/:id/suggestions', (req: Request, res: Response) => {
   sql += ' ORDER BY s.created_at DESC';
   const suggestions = db.prepare(sql).all(...params);
   res.json(suggestions);
+});
+
+router.get('/:id/drafts', requireRole('legal', 'business', 'admin'), (req: Request, res: Response) => {
+  const draft = db.prepare(
+    'SELECT * FROM suggestion_drafts WHERE clause_id = ? AND user_id = ?'
+  ).get(req.params.id, req.user!.userId) as any;
+  if (!draft) {
+    res.json(null);
+    return;
+  }
+  const clause = db.prepare('SELECT current_version FROM clauses WHERE id = ?').get(req.params.id) as any;
+  const version_conflict = clause && draft.base_version < clause.current_version;
+  res.json({ ...draft, version_conflict, current_version: clause?.current_version });
+});
+
+router.post('/:id/drafts', requireRole('legal', 'business', 'admin'), (req: Request, res: Response) => {
+  const { type, content, base_version, amended_title, amended_content, risk_level, exclusive_role } = req.body;
+  const clause = db.prepare('SELECT * FROM clauses WHERE id = ?').get(req.params.id) as any;
+  if (!clause) {
+    res.status(404).json({ error: '条款不存在' });
+    return;
+  }
+  if (!type || !['comment', 'amendment'].includes(type)) {
+    res.status(400).json({ error: '建议类型无效' });
+    return;
+  }
+  if (!base_version || base_version < 1) {
+    res.status(400).json({ error: '必须指定基于哪个版本' });
+    return;
+  }
+
+  const existing = db.prepare(
+    'SELECT id FROM suggestion_drafts WHERE clause_id = ? AND user_id = ?'
+  ).get(req.params.id, req.user!.userId) as any;
+
+  let draftId: string;
+  if (existing) {
+    draftId = existing.id;
+    db.prepare(`
+      UPDATE suggestion_drafts SET type = ?, content = ?, base_version = ?,
+        amended_title = ?, amended_content = ?, risk_level = ?, exclusive_role = ?,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(
+      type, content || '', base_version,
+      amended_title || null, amended_content || null,
+      risk_level || null, exclusive_role || 'all', draftId
+    );
+  } else {
+    draftId = uuidv4();
+    db.prepare(`
+      INSERT INTO suggestion_drafts (id, clause_id, user_id, base_version, type, content,
+        amended_title, amended_content, risk_level, exclusive_role)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      draftId, clause.id, req.user!.userId, base_version, type, content || '',
+      amended_title || null, amended_content || null,
+      risk_level || null, exclusive_role || 'all'
+    );
+  }
+
+  createAuditLog('save_draft', 'draft', draftId, req.user!.userId, req.user!.role, {
+    clause_id: clause.id,
+    clause_number: clause.clause_number,
+    type,
+    base_version,
+    is_update: !!existing
+  });
+
+  const draft = db.prepare('SELECT * FROM suggestion_drafts WHERE id = ?').get(draftId);
+  const version_conflict = base_version < clause.current_version;
+  res.json({ ...draft, version_conflict, current_version: clause.current_version });
+});
+
+router.delete('/:id/drafts/:draftId', requireRole('legal', 'business', 'admin'), (req: Request, res: Response) => {
+  const draft = db.prepare('SELECT * FROM suggestion_drafts WHERE id = ?').get(req.params.draftId) as any;
+  if (!draft) {
+    res.status(404).json({ error: '草稿不存在' });
+    return;
+  }
+  if (draft.user_id !== req.user!.userId) {
+    res.status(403).json({ error: '只能删除自己的草稿' });
+    return;
+  }
+  if (draft.clause_id !== req.params.id) {
+    res.status(400).json({ error: '草稿与条款不匹配' });
+    return;
+  }
+
+  db.prepare('DELETE FROM suggestion_drafts WHERE id = ?').run(req.params.draftId);
+
+  createAuditLog('delete_draft', 'draft', req.params.draftId, req.user!.userId, req.user!.role, {
+    clause_id: draft.clause_id,
+    type: draft.type,
+    base_version: draft.base_version
+  });
+
+  res.json({ success: true });
 });
 
 export default router;
