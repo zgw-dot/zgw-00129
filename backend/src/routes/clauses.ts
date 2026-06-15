@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { authMiddleware, requireRole } from '../middleware';
 import { createAuditLog } from '../audit';
 import { handleClauseVersionChange } from './countersigns';
+import { createReviewTicketsForClause } from './reviewTickets';
 
 const router = Router();
 
@@ -313,6 +314,13 @@ router.post('/:id/suggestions/:sid/merge', requireRole('admin', 'legal'), (req: 
     'merge_suggestion', reason, req.user!.userId, req.user!.role
   );
 
+  createReviewTicketsForClause(
+    clause.id, 'merge_version',
+    `合并修改建议出新版本（v${oldVersion}→v${newVersion}）：${reason}`,
+    req.user!.userId, req.user!.role,
+    oldVersion, newVersion, true
+  );
+
   createAuditLog('merge_suggestion', 'suggestion', req.params.sid, req.user!.userId, req.user!.role, {
     clause_id: clause.id,
     old_version: oldVersion,
@@ -389,6 +397,13 @@ router.post('/:id/rollback', requireRole('admin'), (req: Request, res: Response)
   handleClauseVersionChange(
     clause.id, oldVersion, newVersion,
     'rollback', `回滚至 v${target_version}：${reason}`, req.user!.userId, req.user!.role
+  );
+
+  createReviewTicketsForClause(
+    clause.id, 'rollback',
+    `版本回滚（v${oldVersion}→v${newVersion}，目标v${target_version}）：${reason}`,
+    req.user!.userId, req.user!.role,
+    oldVersion, newVersion, true
   );
 
   createAuditLog('rollback', 'clause', clause.id, req.user!.userId, req.user!.role, {

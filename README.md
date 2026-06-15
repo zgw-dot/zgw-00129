@@ -206,6 +206,14 @@ zgw-00129/
 - `audit_logs` 中 `entity_type = 'draft'` 的记录：草稿保存（`save_draft`）、转正提交（`submit_draft`，带对应 `suggestion_id`）、丢弃（`delete_draft`），其 `details.clause_id` 均在当前合同条款范围内，按后端 SQL 层过滤，不靠前端。
 - 草稿持久化到 SQLite 的 `suggestion_drafts` 表，唯一约束 `(clause_id, user_id)`，重启前后端不丢失。
 
+**复查工单导出字段**（`review_tickets` 节点）：
+- `all_tickets[]`：该合同所有会签关联的全部工单（含已关闭、已失效），每条带完整 `history[]` 状态流转历史
+- `open_tickets[]`：状态为 `pending/acknowledged/reopened` 的未结工单，直接展示需处理项
+- `invalid_tickets[]` + `invalidation_reasons[]`：已失效工单清单，逐条说明失效原因、旧结论与旧备注，用于审计"为什么原来的待办不算了"
+- `checklist[]`：**核对步骤清单**，按优先级排序，每条含 `step_no`、`ticket_no`、条款信息、责任人、`required_action`（未签收 / 处理中 / 重开），导出后即按表逐项勾核
+- `summary`：工单统计总览（总数 / 各状态计数 / 按 7 种触发类型分类计数）
+- `contract.can_be_marked_complete`：需同时满足「会签 incomplete_items 为空」**且**「复查工单 open_tickets 为空」才为 `true`
+
 ---
 
 ## 🔌 API 速查（调试用）
@@ -218,10 +226,30 @@ zgw-00129/
 | POST | `/api/clauses/:id/drafts` | **保存/更新草稿**（upsert，按 clause_id + user_id 唯一） |
 | DELETE | `/api/clauses/:id/drafts/:draftId` | **删除草稿**（只能删本人的） |
 | POST | `/api/clauses/:id/suggestions` | 创建建议（含冲突检测），成功后自动清同条款同用户草稿 |
-| POST | `/api/clauses/:id/suggestions/:sid/merge` | 合并建议（触发 409 冲突） |
-| POST | `/api/clauses/:id/rollback` | 版本回滚（admin，可测不存在版本） |
-| GET  | `/api/reports/contract/:id/export` | 导出完整评审包（含 drafts 与草稿审计，按合同隔离） |
+| POST | `/api/clauses/:id/suggestions/:sid/merge` | 合并建议（触发 409 冲突）→ 自动触发会签待重审钩子 |
+| POST | `/api/clauses/:id/rollback` | 版本回滚（admin，可测不存在版本）→ 自动触发会签待重审钩子 |
+| GET  | `/api/reports/contract/:id/export` | 导出完整评审包（含会签 rounds / incomplete_items / invalidation_reasons / 复查工单全量数据 / 核对步骤清单） |
 | GET  | `/api/reports/audit-logs` | 审计日志 |
+| **— 复查工单模块 —** | | |
+| GET  | `/api/review-tickets` | 工单列表（支持 contract_id/round_id/clause_id/assignee_id/status/trigger_type 筛选，only_mine=true 看自己的，含统计摘要） |
+| GET  | `/api/review-tickets/mine` | （同上，带 only_mine=true 快捷入口） |
+| GET  | `/api/review-tickets/:id` | 工单详情（含完整处理历史、版本变更链、关联条款/会签信息） |
+| POST | `/api/review-tickets/:id/acknowledge` | **责任人签收**工单（非责任人禁止代签，返回 403） |
+| POST | `/api/review-tickets/:id/conclude` | **责任人提交结论**：`pass`（通过）/ `need_more_info`（补资料）/ `recountersign`（触发重新会签），需先签收 |
+| POST | `/api/review-tickets/:id/reassign` | **管理员改派**责任人（body: new_user_id, reason），已签收会重置为待签收 |
+| POST | `/api/review-tickets/:id/reopen` | **管理员重开**已关闭工单（body: reason），清空旧结论但保留历史，`reopened_count` +1 |
+| POST | `/api/review-tickets/:id/withdraw` | **管理员撤回/失效**工单（body: reason），状态置 invalid，旧结论和处理历史全部保留 |
+| POST | `/api/review-tickets/manual-create` | **管理员手动建单**（body: round_id, clause_id, assignee_user_ids[], reason），用于特殊场景重启复查 |
+| **— 会签模块 —** | | |
+| POST | `/api/countersigns` | **管理员发起会签**（body: round_name, description?, deadline?, participant_ids[], clause_ids[]） |
+| GET  | `/api/countersigns/contract/:contractId` | 按合同列出所有会签（管理员全量，法务/业务仅自己参与的） |
+| GET  | `/api/countersigns/mine` | 当前登录用户作为参与人的会签列表 |
+| GET  | `/api/countersigns/:id` | **会签详情**（含参与人、条款、结论矩阵、变更历史） |
+| POST | `/api/countersigns/:id/acknowledge` | **参与人批量签收**所有条款（两阶段第一阶段） |
+| POST | `/api/countersigns/:id/conclude` | **对单条条款提交结论**（body: clause_id, conclusion: pass\|reject\|need_more_info, comment?）→ 先校验已签收 |
+| POST | `/api/countersigns/:id/withdraw` | **管理员撤回整回合**（body: reason）→ 状态置 withdrawn，旧意见保留 |
+| POST | `/api/countersigns/:id/replace-participant` | **管理员替换参与人**（body: old_participant_id, new_user_id, reason）→ 软删除原记录，保留旧结论 |
+| POST | `/api/countersigns/:id/rerequest-rereview` | **管理员主动请求重审**指定条款（body: clause_ids[], reason）→ 清空结论并标记待重审 |
 
 ---
 

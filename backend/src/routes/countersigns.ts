@@ -3,6 +3,7 @@ import db from '../database';
 import { v4 as uuidv4 } from 'uuid';
 import { authMiddleware, requireRole } from '../middleware';
 import { createAuditLog } from '../audit';
+import { createReviewTicketsForClause, createReviewTicketForReject } from './reviewTickets';
 
 const router = Router();
 
@@ -471,6 +472,18 @@ router.post('/:id/conclude', requireRole('legal', 'business', 'admin'), (req: Re
     current_version: clause?.current_version
   });
 
+  if (conclusion === 'reject' || conclusion === 'need_more_info') {
+    createReviewTicketForReject(
+      req.params.id,
+      clause_id,
+      participation.id,
+      req.user!.userId,
+      req.user!.role,
+      comment || '',
+      conclusion === 'reject' ? 'reject_conclusion' : 'need_more_info'
+    );
+  }
+
   tryCompleteRound(req.params.id);
 
   const updated = db.prepare(`
@@ -738,6 +751,15 @@ router.post('/:id/rerequest-rereview', requireRole('admin'), (req: Request, res:
     reason,
     rereview_count: validClauses.length
   });
+
+  for (const cc of validClauses) {
+    createReviewTicketsForClause(
+      cc.clause_id, 'admin_rereview',
+      `管理员手动重启复查：${reason}`,
+      req.user!.userId, req.user!.role,
+      null, null, true
+    );
+  }
 
   res.json({
     success: true,

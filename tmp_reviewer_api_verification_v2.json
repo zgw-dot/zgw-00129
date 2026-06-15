@@ -1,0 +1,834 @@
+{
+  "created_at": "2026-06-15T09:06:43.610407Z",
+  "steps": [
+    {
+      "step": "create_contract",
+      "status_code": 201,
+      "body": {
+        "id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+        "name": "Reviewer Contract 090643",
+        "description": "reviewer generated v2",
+        "created_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+        "created_at": "2026-06-15 09:06:43",
+        "updated_at": "2026-06-15 09:06:43"
+      }
+    },
+    {
+      "step": "import_initial",
+      "status_code": 200,
+      "body": {
+        "import_mode": "add_only",
+        "imported_new": [
+          {
+            "id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+            "clause_number": "1",
+            "title": "付款",
+            "action": "new"
+          },
+          {
+            "id": "d0110da8-08bd-47e1-88eb-1ea32dd39723",
+            "clause_number": "2",
+            "title": "保密",
+            "action": "new"
+          }
+        ],
+        "updated": [],
+        "skipped": [],
+        "blocked": [],
+        "errors": [],
+        "new_count": 2,
+        "update_count": 0,
+        "skip_count": 0,
+        "block_count": 0,
+        "error_count": 0
+      }
+    },
+    {
+      "step": "create_countersign",
+      "status_code": 201,
+      "body": {
+        "round": {
+          "id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+          "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+          "round_name": "首次会签",
+          "description": "reviewer flow v2",
+          "deadline": null,
+          "created_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+          "status": "active",
+          "withdraw_reason": null,
+          "withdrawn_at": null,
+          "withdrawn_by": null,
+          "completed_at": null,
+          "created_at": "2026-06-15 09:06:43",
+          "updated_at": "2026-06-15 09:06:43",
+          "creator_name": "系统管理员"
+        },
+        "participant_count": 2,
+        "clause_count": 2
+      }
+    },
+    {
+      "step": "ack_countersign_legal1",
+      "status_code": 200,
+      "body": {
+        "success": true,
+        "acknowledged_count": 2,
+        "results": [
+          {
+            "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+            "acknowledged": true,
+            "is_new": true
+          },
+          {
+            "clause_id": "d0110da8-08bd-47e1-88eb-1ea32dd39723",
+            "acknowledged": true,
+            "is_new": true
+          }
+        ]
+      }
+    },
+    {
+      "step": "ack_countersign_business1",
+      "status_code": 200,
+      "body": {
+        "success": true,
+        "acknowledged_count": 2,
+        "results": [
+          {
+            "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+            "acknowledged": true,
+            "is_new": true
+          },
+          {
+            "clause_id": "d0110da8-08bd-47e1-88eb-1ea32dd39723",
+            "acknowledged": true,
+            "is_new": true
+          }
+        ]
+      }
+    },
+    {
+      "step": "conclude_legal1_clause1",
+      "status_code": 200,
+      "body": {
+        "conclusion": {
+          "id": "186ccbb1-1a24-43e9-b8aa-e010b484e657",
+          "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+          "participant_id": "8fa846a0-9859-4e80-b914-ffc8a54b37ab",
+          "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+          "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+          "conclusion": "pass",
+          "comment": "法务通过条款1",
+          "acknowledged_at": "2026-06-15 09:06:43",
+          "concluded_at": "2026-06-15 09:06:43",
+          "original_version": 1,
+          "created_at": "2026-06-15 09:06:43",
+          "updated_at": "2026-06-15 09:06:43",
+          "user_name": "法务-张明"
+        },
+        "version_mismatch": false
+      }
+    },
+    {
+      "step": "conclude_legal1_clause2",
+      "status_code": 200,
+      "body": {
+        "conclusion": {
+          "id": "58e690da-2be7-4c1d-83aa-a8d861dc0587",
+          "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+          "participant_id": "8fa846a0-9859-4e80-b914-ffc8a54b37ab",
+          "user_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+          "clause_id": "d0110da8-08bd-47e1-88eb-1ea32dd39723",
+          "conclusion": "pass",
+          "comment": "法务通过条款2",
+          "acknowledged_at": "2026-06-15 09:06:43",
+          "concluded_at": "2026-06-15 09:06:44",
+          "original_version": 1,
+          "created_at": "2026-06-15 09:06:43",
+          "updated_at": "2026-06-15 09:06:44",
+          "user_name": "法务-张明"
+        },
+        "version_mismatch": false
+      }
+    },
+    {
+      "step": "conclude_business1_clause1",
+      "status_code": 200,
+      "body": {
+        "conclusion": {
+          "id": "0b3d43a7-69a9-43fe-bc29-d69746d9f63d",
+          "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+          "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+          "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+          "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+          "conclusion": "pass",
+          "comment": "业务通过条款1",
+          "acknowledged_at": "2026-06-15 09:06:43",
+          "concluded_at": "2026-06-15 09:06:44",
+          "original_version": 1,
+          "created_at": "2026-06-15 09:06:43",
+          "updated_at": "2026-06-15 09:06:44",
+          "user_name": "业务-王芳"
+        },
+        "version_mismatch": false
+      }
+    },
+    {
+      "step": "conclude_business1_clause2",
+      "status_code": 200,
+      "body": {
+        "conclusion": {
+          "id": "28010ed6-5fc9-400c-96c8-d6c963d89224",
+          "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+          "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+          "user_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+          "clause_id": "d0110da8-08bd-47e1-88eb-1ea32dd39723",
+          "conclusion": "pass",
+          "comment": "业务通过条款2",
+          "acknowledged_at": "2026-06-15 09:06:43",
+          "concluded_at": "2026-06-15 09:06:44",
+          "original_version": 1,
+          "created_at": "2026-06-15 09:06:43",
+          "updated_at": "2026-06-15 09:06:44",
+          "user_name": "业务-王芳"
+        },
+        "version_mismatch": false
+      }
+    },
+    {
+      "step": "create_amendment",
+      "status_code": 201,
+      "body": {
+        "suggestion": {
+          "id": "14e4c661-6c77-45d2-b694-05d8392ec75a",
+          "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+          "clause_version_id": "19c8317e-61c6-4f8f-aede-fff23518ac37",
+          "base_version": 1,
+          "type": "amendment",
+          "content": "更新付款天数",
+          "amended_title": null,
+          "amended_content": "甲方应在15日内付款。",
+          "risk_level": null,
+          "status": "pending",
+          "created_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+          "created_by_role": "legal",
+          "exclusive_role": "all",
+          "created_at": "2026-06-15 09:06:44",
+          "resolved_at": null,
+          "resolved_by": null,
+          "decision_reason": null,
+          "creator_name": "法务-张明"
+        },
+        "version_conflict": false,
+        "conflict_detail": null
+      }
+    },
+    {
+      "step": "merge_amendment",
+      "status_code": 200,
+      "body": {
+        "clause": {
+          "id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+          "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+          "clause_number": "1",
+          "title": "付款",
+          "content": "甲方应在15日内付款。",
+          "risk_level": "high",
+          "current_version": 2,
+          "created_at": "2026-06-15 09:06:43",
+          "updated_at": "2026-06-15 09:06:44"
+        },
+        "suggestion": {
+          "id": "14e4c661-6c77-45d2-b694-05d8392ec75a",
+          "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+          "clause_version_id": "19c8317e-61c6-4f8f-aede-fff23518ac37",
+          "base_version": 1,
+          "type": "amendment",
+          "content": "更新付款天数",
+          "amended_title": null,
+          "amended_content": "甲方应在15日内付款。",
+          "risk_level": null,
+          "status": "merged",
+          "created_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+          "created_by_role": "legal",
+          "exclusive_role": "all",
+          "created_at": "2026-06-15 09:06:44",
+          "resolved_at": "2026-06-15 09:06:44",
+          "resolved_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+          "decision_reason": "生成新版本触发复查",
+          "resolver_name": "法务-张明"
+        },
+        "new_version": 2
+      }
+    },
+    {
+      "step": "list_tickets_after_merge",
+      "status_code": 200,
+      "body": {
+        "tickets": [
+          {
+            "id": "a4ef0b6a-924f-4e44-b111-dc87911ebb1b",
+            "ticket_no": "RT-20260615-3994",
+            "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+            "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+            "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+            "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+            "participant_id": "8fa846a0-9859-4e80-b914-ffc8a54b37ab",
+            "assignee_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "trigger_type": "merge_version",
+            "trigger_reason": "合并修改建议出新版本（v1→v2）：生成新版本触发复查",
+            "triggered_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "original_version": 1,
+            "new_version": 2,
+            "status": "pending",
+            "conclusion": null,
+            "conclusion_comment": null,
+            "acknowledged_at": null,
+            "concluded_at": null,
+            "reopened_count": 0,
+            "invalidated_reason": null,
+            "invalidated_at": null,
+            "created_at": "2026-06-15 09:06:44",
+            "updated_at": "2026-06-15 09:06:44",
+            "clause_number": "1",
+            "clause_title": "付款",
+            "current_version": 2,
+            "round_name": "首次会签",
+            "round_status": "active",
+            "assignee_name": "法务-张明",
+            "assignee_username": "legal1",
+            "assignee_role": "legal",
+            "triggerer_name": "法务-张明",
+            "contract_name": "Reviewer Contract 090643"
+          },
+          {
+            "id": "0bd070a6-dc42-41d1-b2d5-81cb350b313a",
+            "ticket_no": "RT-20260615-6407",
+            "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+            "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+            "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+            "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+            "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+            "assignee_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "trigger_type": "merge_version",
+            "trigger_reason": "合并修改建议出新版本（v1→v2）：生成新版本触发复查",
+            "triggered_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "original_version": 1,
+            "new_version": 2,
+            "status": "pending",
+            "conclusion": null,
+            "conclusion_comment": null,
+            "acknowledged_at": null,
+            "concluded_at": null,
+            "reopened_count": 0,
+            "invalidated_reason": null,
+            "invalidated_at": null,
+            "created_at": "2026-06-15 09:06:44",
+            "updated_at": "2026-06-15 09:06:44",
+            "clause_number": "1",
+            "clause_title": "付款",
+            "current_version": 2,
+            "round_name": "首次会签",
+            "round_status": "active",
+            "assignee_name": "业务-王芳",
+            "assignee_username": "business1",
+            "assignee_role": "business",
+            "triggerer_name": "法务-张明",
+            "contract_name": "Reviewer Contract 090643"
+          }
+        ],
+        "stats": {
+          "total": 2,
+          "pending_count": 2,
+          "acknowledged_count": 0,
+          "open_count": 2,
+          "closed_count": 0,
+          "reopened_count": 0,
+          "invalid_count": 0
+        }
+      }
+    },
+    {
+      "step": "non_assignee_ack_forbidden",
+      "status_code": 403,
+      "body": {
+        "error": "非责任人禁止代签收，仅责任人本人或管理员可以操作"
+      }
+    },
+    {
+      "step": "biz1_ack_ticket",
+      "status_code": 200,
+      "body": {
+        "id": "0bd070a6-dc42-41d1-b2d5-81cb350b313a",
+        "ticket_no": "RT-20260615-6407",
+        "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+        "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+        "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+        "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+        "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+        "assignee_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+        "trigger_type": "merge_version",
+        "trigger_reason": "合并修改建议出新版本（v1→v2）：生成新版本触发复查",
+        "triggered_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+        "original_version": 1,
+        "new_version": 2,
+        "status": "acknowledged",
+        "conclusion": null,
+        "conclusion_comment": null,
+        "acknowledged_at": "2026-06-15 09:06:44",
+        "concluded_at": null,
+        "reopened_count": 0,
+        "invalidated_reason": null,
+        "invalidated_at": null,
+        "created_at": "2026-06-15 09:06:44",
+        "updated_at": "2026-06-15 09:06:44",
+        "assignee_name": "业务-王芳"
+      }
+    },
+    {
+      "step": "biz1_conclude_ticket_need_more_info",
+      "status_code": 200,
+      "body": {
+        "id": "0bd070a6-dc42-41d1-b2d5-81cb350b313a",
+        "ticket_no": "RT-20260615-6407",
+        "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+        "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+        "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+        "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+        "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+        "assignee_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+        "trigger_type": "merge_version",
+        "trigger_reason": "合并修改建议出新版本（v1→v2）：生成新版本触发复查",
+        "triggered_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+        "original_version": 1,
+        "new_version": 2,
+        "status": "closed",
+        "conclusion": "need_more_info",
+        "conclusion_comment": "请补充发票要求",
+        "acknowledged_at": "2026-06-15 09:06:44",
+        "concluded_at": "2026-06-15 09:06:44",
+        "reopened_count": 0,
+        "invalidated_reason": null,
+        "invalidated_at": null,
+        "created_at": "2026-06-15 09:06:44",
+        "updated_at": "2026-06-15 09:06:44",
+        "assignee_name": "业务-王芳"
+      }
+    },
+    {
+      "step": "reassign_invalid_user",
+      "status_code": 400,
+      "body": {
+        "error": "新责任人不是该会签的有效参与人"
+      }
+    },
+    {
+      "step": "reassign_valid",
+      "status_code": 200,
+      "body": {
+        "id": "a4ef0b6a-924f-4e44-b111-dc87911ebb1b",
+        "ticket_no": "RT-20260615-3994",
+        "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+        "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+        "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+        "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+        "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+        "assignee_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+        "trigger_type": "merge_version",
+        "trigger_reason": "合并修改建议出新版本（v1→v2）：生成新版本触发复查",
+        "triggered_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+        "original_version": 1,
+        "new_version": 2,
+        "status": "pending",
+        "conclusion": null,
+        "conclusion_comment": null,
+        "acknowledged_at": null,
+        "concluded_at": null,
+        "reopened_count": 0,
+        "invalidated_reason": null,
+        "invalidated_at": null,
+        "created_at": "2026-06-15 09:06:44",
+        "updated_at": "2026-06-15 09:06:44",
+        "assignee_name": "业务-王芳"
+      }
+    },
+    {
+      "step": "ack_reassigned_ticket",
+      "status_code": 200,
+      "body": {
+        "id": "a4ef0b6a-924f-4e44-b111-dc87911ebb1b",
+        "ticket_no": "RT-20260615-3994",
+        "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+        "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+        "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+        "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+        "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+        "assignee_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+        "trigger_type": "merge_version",
+        "trigger_reason": "合并修改建议出新版本（v1→v2）：生成新版本触发复查",
+        "triggered_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+        "original_version": 1,
+        "new_version": 2,
+        "status": "acknowledged",
+        "conclusion": null,
+        "conclusion_comment": null,
+        "acknowledged_at": "2026-06-15 09:06:44",
+        "concluded_at": null,
+        "reopened_count": 0,
+        "invalidated_reason": null,
+        "invalidated_at": null,
+        "created_at": "2026-06-15 09:06:44",
+        "updated_at": "2026-06-15 09:06:44",
+        "assignee_name": "业务-王芳"
+      }
+    },
+    {
+      "step": "conclude_reassigned_ticket",
+      "status_code": 200,
+      "body": {
+        "id": "a4ef0b6a-924f-4e44-b111-dc87911ebb1b",
+        "ticket_no": "RT-20260615-3994",
+        "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+        "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+        "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+        "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+        "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+        "assignee_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+        "trigger_type": "merge_version",
+        "trigger_reason": "合并修改建议出新版本（v1→v2）：生成新版本触发复查",
+        "triggered_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+        "original_version": 1,
+        "new_version": 2,
+        "status": "closed",
+        "conclusion": "pass",
+        "conclusion_comment": "已核对",
+        "acknowledged_at": "2026-06-15 09:06:44",
+        "concluded_at": "2026-06-15 09:06:44",
+        "reopened_count": 0,
+        "invalidated_reason": null,
+        "invalidated_at": null,
+        "created_at": "2026-06-15 09:06:44",
+        "updated_at": "2026-06-15 09:06:44",
+        "assignee_name": "业务-王芳"
+      }
+    },
+    {
+      "step": "reopen_ticket",
+      "status_code": 200,
+      "body": {
+        "id": "a4ef0b6a-924f-4e44-b111-dc87911ebb1b",
+        "ticket_no": "RT-20260615-3994",
+        "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+        "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+        "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+        "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+        "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+        "assignee_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+        "trigger_type": "merge_version",
+        "trigger_reason": "合并修改建议出新版本（v1→v2）：生成新版本触发复查",
+        "triggered_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+        "original_version": 1,
+        "new_version": 2,
+        "status": "reopened",
+        "conclusion": null,
+        "conclusion_comment": null,
+        "acknowledged_at": null,
+        "concluded_at": null,
+        "reopened_count": 1,
+        "invalidated_reason": null,
+        "invalidated_at": null,
+        "created_at": "2026-06-15 09:06:44",
+        "updated_at": "2026-06-15 09:06:44",
+        "assignee_name": "业务-王芳"
+      }
+    },
+    {
+      "step": "conclude_after_reopen_without_ack",
+      "status_code": 200,
+      "body": {
+        "id": "a4ef0b6a-924f-4e44-b111-dc87911ebb1b",
+        "ticket_no": "RT-20260615-3994",
+        "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+        "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+        "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+        "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+        "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+        "assignee_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+        "trigger_type": "merge_version",
+        "trigger_reason": "合并修改建议出新版本（v1→v2）：生成新版本触发复查",
+        "triggered_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+        "original_version": 1,
+        "new_version": 2,
+        "status": "closed",
+        "conclusion": "pass",
+        "conclusion_comment": "未重新签收直接处理",
+        "acknowledged_at": null,
+        "concluded_at": "2026-06-15 09:06:44",
+        "reopened_count": 1,
+        "invalidated_reason": null,
+        "invalidated_at": null,
+        "created_at": "2026-06-15 09:06:44",
+        "updated_at": "2026-06-15 09:06:44",
+        "assignee_name": "业务-王芳"
+      }
+    },
+    {
+      "step": "import_update_second_trigger",
+      "status_code": 200,
+      "body": {
+        "import_mode": "update_by_number",
+        "imported_new": [],
+        "updated": [
+          {
+            "id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+            "clause_number": "1",
+            "title": "付款",
+            "action": "update",
+            "old_version": 2,
+            "new_version": 3
+          }
+        ],
+        "skipped": [
+          {
+            "id": "d0110da8-08bd-47e1-88eb-1ea32dd39723",
+            "clause_number": "2",
+            "title": "保密",
+            "action": "skip",
+            "reason": "内容无变化"
+          }
+        ],
+        "blocked": [],
+        "errors": [],
+        "new_count": 0,
+        "update_count": 1,
+        "skip_count": 1,
+        "block_count": 0,
+        "error_count": 0
+      }
+    },
+    {
+      "step": "list_tickets_after_second_trigger",
+      "status_code": 200,
+      "body": {
+        "tickets": [
+          {
+            "id": "a4ef0b6a-924f-4e44-b111-dc87911ebb1b",
+            "ticket_no": "RT-20260615-3994",
+            "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+            "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+            "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+            "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+            "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+            "assignee_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "trigger_type": "merge_version",
+            "trigger_reason": "合并修改建议出新版本（v1→v2）：生成新版本触发复查",
+            "triggered_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "original_version": 1,
+            "new_version": 2,
+            "status": "closed",
+            "conclusion": "pass",
+            "conclusion_comment": "未重新签收直接处理",
+            "acknowledged_at": null,
+            "concluded_at": "2026-06-15 09:06:44",
+            "reopened_count": 1,
+            "invalidated_reason": null,
+            "invalidated_at": null,
+            "created_at": "2026-06-15 09:06:44",
+            "updated_at": "2026-06-15 09:06:44",
+            "clause_number": "1",
+            "clause_title": "付款",
+            "current_version": 3,
+            "round_name": "首次会签",
+            "round_status": "active",
+            "assignee_name": "业务-王芳",
+            "assignee_username": "business1",
+            "assignee_role": "business",
+            "triggerer_name": "法务-张明",
+            "contract_name": "Reviewer Contract 090643"
+          },
+          {
+            "id": "0bd070a6-dc42-41d1-b2d5-81cb350b313a",
+            "ticket_no": "RT-20260615-6407",
+            "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+            "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+            "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+            "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+            "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+            "assignee_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "trigger_type": "merge_version",
+            "trigger_reason": "合并修改建议出新版本（v1→v2）：生成新版本触发复查",
+            "triggered_by": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "original_version": 1,
+            "new_version": 2,
+            "status": "closed",
+            "conclusion": "need_more_info",
+            "conclusion_comment": "请补充发票要求",
+            "acknowledged_at": "2026-06-15 09:06:44",
+            "concluded_at": "2026-06-15 09:06:44",
+            "reopened_count": 0,
+            "invalidated_reason": null,
+            "invalidated_at": null,
+            "created_at": "2026-06-15 09:06:44",
+            "updated_at": "2026-06-15 09:06:44",
+            "clause_number": "1",
+            "clause_title": "付款",
+            "current_version": 3,
+            "round_name": "首次会签",
+            "round_status": "active",
+            "assignee_name": "业务-王芳",
+            "assignee_username": "business1",
+            "assignee_role": "business",
+            "triggerer_name": "法务-张明",
+            "contract_name": "Reviewer Contract 090643"
+          },
+          {
+            "id": "d5da73f1-8c1a-485c-8af0-dc0f724243a5",
+            "ticket_no": "RT-20260615-5936",
+            "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+            "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+            "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+            "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+            "participant_id": "8fa846a0-9859-4e80-b914-ffc8a54b37ab",
+            "assignee_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "trigger_type": "import_update",
+            "trigger_reason": "导入更新条款（v2→v3）",
+            "triggered_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+            "original_version": 2,
+            "new_version": 3,
+            "status": "pending",
+            "conclusion": null,
+            "conclusion_comment": null,
+            "acknowledged_at": null,
+            "concluded_at": null,
+            "reopened_count": 0,
+            "invalidated_reason": null,
+            "invalidated_at": null,
+            "created_at": "2026-06-15 09:06:44",
+            "updated_at": "2026-06-15 09:06:44",
+            "clause_number": "1",
+            "clause_title": "付款",
+            "current_version": 3,
+            "round_name": "首次会签",
+            "round_status": "active",
+            "assignee_name": "法务-张明",
+            "assignee_username": "legal1",
+            "assignee_role": "legal",
+            "triggerer_name": "系统管理员",
+            "contract_name": "Reviewer Contract 090643"
+          },
+          {
+            "id": "6e80156e-026f-4ef6-a79f-654349c675ab",
+            "ticket_no": "RT-20260615-7362",
+            "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+            "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+            "countersign_clause_id": "e3fb01f4-49ab-4ddd-9125-012f491f2d7a",
+            "clause_id": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+            "participant_id": "e73a04d9-e8e8-4cb4-953e-dbd9f9bca08d",
+            "assignee_id": "823fffae-bfac-4d7f-a9cf-4936ee99d2ef",
+            "trigger_type": "import_update",
+            "trigger_reason": "导入更新条款（v2→v3）",
+            "triggered_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+            "original_version": 2,
+            "new_version": 3,
+            "status": "pending",
+            "conclusion": null,
+            "conclusion_comment": null,
+            "acknowledged_at": null,
+            "concluded_at": null,
+            "reopened_count": 0,
+            "invalidated_reason": null,
+            "invalidated_at": null,
+            "created_at": "2026-06-15 09:06:44",
+            "updated_at": "2026-06-15 09:06:44",
+            "clause_number": "1",
+            "clause_title": "付款",
+            "current_version": 3,
+            "round_name": "首次会签",
+            "round_status": "active",
+            "assignee_name": "业务-王芳",
+            "assignee_username": "business1",
+            "assignee_role": "business",
+            "triggerer_name": "系统管理员",
+            "contract_name": "Reviewer Contract 090643"
+          }
+        ],
+        "stats": {
+          "total": 4,
+          "pending_count": 2,
+          "acknowledged_count": 0,
+          "open_count": 2,
+          "closed_count": 2,
+          "reopened_count": 0,
+          "invalid_count": 0
+        }
+      }
+    },
+    {
+      "step": "manual_create_ticket",
+      "status_code": 201,
+      "body": {
+        "created_count": 1,
+        "tickets": [
+          {
+            "id": "2ba109f2-6c88-400c-a417-1357a0c80394",
+            "ticket_no": "RT-20260615-3964",
+            "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+            "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+            "countersign_clause_id": "d84f31fe-680a-4e04-8e41-a158160578ce",
+            "clause_id": "d0110da8-08bd-47e1-88eb-1ea32dd39723",
+            "participant_id": "8fa846a0-9859-4e80-b914-ffc8a54b37ab",
+            "assignee_id": "04c1766f-4137-48f8-852d-38f4694a0321",
+            "trigger_type": "admin_rereview",
+            "trigger_reason": "管理员手动重启复查：手动重启复查",
+            "triggered_by": "9f6721bb-2843-43f6-9e0b-911c7aa178ee",
+            "original_version": null,
+            "new_version": null,
+            "status": "pending",
+            "conclusion": null,
+            "conclusion_comment": null,
+            "acknowledged_at": null,
+            "concluded_at": null,
+            "reopened_count": 0,
+            "invalidated_reason": null,
+            "invalidated_at": null,
+            "created_at": "2026-06-15 09:06:44",
+            "updated_at": "2026-06-15 09:06:44",
+            "assignee_name": "法务-张明"
+          }
+        ]
+      }
+    },
+    {
+      "step": "export_contract",
+      "ok": true,
+      "export_summary": {
+        "all_tickets": 5,
+        "open_tickets": 3,
+        "invalid_tickets": 0,
+        "checklist": 3,
+        "invalidation_reasons": 0,
+        "can_be_marked_complete": false
+      }
+    }
+  ],
+  "contract_id": "2f58ad56-18ac-4c5b-84b8-f1b6750f3706",
+  "clause_ids": {
+    "1": "9e0f85e9-bba3-4b9c-b154-f529787435b9",
+    "2": "d0110da8-08bd-47e1-88eb-1ea32dd39723"
+  },
+  "round_id": "9e2147b3-a4ce-43fd-8939-fcdd0ff9cb68",
+  "merge_ticket_count": 2,
+  "ticket_ids": {
+    "legal1": "a4ef0b6a-924f-4e44-b111-dc87911ebb1b",
+    "business1": "0bd070a6-dc42-41d1-b2d5-81cb350b313a"
+  },
+  "import_update_ticket_count": 2,
+  "invalidated_merge_ticket_count": 0,
+  "pre_restart_ticket": {
+    "id": "a4ef0b6a-924f-4e44-b111-dc87911ebb1b",
+    "status": "closed",
+    "acknowledged_at": null,
+    "reopened_count": 1,
+    "history_len": 6
+  }
+}

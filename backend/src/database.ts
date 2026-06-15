@@ -283,6 +283,60 @@ export async function initDatabase() {
     CREATE INDEX IF NOT EXISTS idx_countersign_conclusions_round ON countersign_conclusions(round_id);
     CREATE INDEX IF NOT EXISTS idx_countersign_conclusions_user ON countersign_conclusions(user_id);
     CREATE INDEX IF NOT EXISTS idx_countersign_history_round ON countersign_history(round_id);
+
+    CREATE TABLE IF NOT EXISTS review_tickets (
+      id TEXT PRIMARY KEY,
+      ticket_no TEXT NOT NULL,
+      contract_id TEXT REFERENCES contracts(id) ON DELETE CASCADE,
+      round_id TEXT REFERENCES countersign_rounds(id) ON DELETE CASCADE,
+      countersign_clause_id TEXT REFERENCES countersign_clauses(id) ON DELETE CASCADE,
+      clause_id TEXT REFERENCES clauses(id) ON DELETE CASCADE,
+      participant_id TEXT REFERENCES countersign_participants(id) ON DELETE CASCADE,
+      assignee_id TEXT REFERENCES users(id),
+      trigger_type TEXT NOT NULL CHECK (trigger_type IN (
+        'import_override', 'import_update', 'rollback', 'merge_version',
+        'reject_conclusion', 'need_more_info', 'admin_rereview'
+      )),
+      trigger_reason TEXT NOT NULL,
+      triggered_by TEXT REFERENCES users(id),
+      original_version INTEGER,
+      new_version INTEGER,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN (
+        'pending', 'acknowledged', 'closed', 'reopened', 'invalid'
+      )),
+      conclusion TEXT CHECK (conclusion IN ('pass', 'need_more_info', 'recountersign')),
+      conclusion_comment TEXT,
+      acknowledged_at DATETIME,
+      concluded_at DATETIME,
+      reopened_count INTEGER NOT NULL DEFAULT 0,
+      invalidated_reason TEXT,
+      invalidated_at DATETIME,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS review_ticket_history (
+      id TEXT PRIMARY KEY,
+      ticket_id TEXT NOT NULL REFERENCES review_tickets(id) ON DELETE CASCADE,
+      action TEXT NOT NULL CHECK (action IN (
+        'create', 'acknowledge', 'conclude', 'reassign',
+        'reopen', 'invalidate', 'withdraw', 'admin_note'
+      )),
+      from_status TEXT,
+      to_status TEXT,
+      user_id TEXT REFERENCES users(id),
+      user_role TEXT,
+      details TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_review_tickets_contract ON review_tickets(contract_id);
+    CREATE INDEX IF NOT EXISTS idx_review_tickets_round ON review_tickets(round_id);
+    CREATE INDEX IF NOT EXISTS idx_review_tickets_clause ON review_tickets(clause_id);
+    CREATE INDEX IF NOT EXISTS idx_review_tickets_assignee ON review_tickets(assignee_id);
+    CREATE INDEX IF NOT EXISTS idx_review_tickets_status ON review_tickets(status);
+    CREATE INDEX IF NOT EXISTS idx_review_tickets_trigger ON review_tickets(trigger_type);
+    CREATE INDEX IF NOT EXISTS idx_review_ticket_history_ticket ON review_ticket_history(ticket_id);
   `);
 
   try {

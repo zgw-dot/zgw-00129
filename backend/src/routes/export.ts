@@ -191,6 +191,89 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
     }
   }
 
+  let reviewTickets: any[] = [];
+  let reviewTicketHistory: any[] = [];
+  if (roundIds.length > 0) {
+    reviewTickets = db.prepare(`
+      SELECT t.*,
+        c.clause_number, c.title as clause_title,
+        cr.round_name,
+        u.display_name as assignee_name, u.username as assignee_username, u.role as assignee_role,
+        cu.display_name as triggerer_name
+      FROM review_tickets t
+      LEFT JOIN clauses c ON t.clause_id = c.id
+      LEFT JOIN countersign_rounds cr ON t.round_id = cr.id
+      LEFT JOIN users u ON t.assignee_id = u.id
+      LEFT JOIN users cu ON t.triggered_by = cu.id
+      WHERE t.round_id IN (${roundIds.map(() => '?').join(',')})
+      ORDER BY t.created_at ASC
+    `).all(...roundIds);
+
+    const ticketIds = (reviewTickets as any[]).map(t => (t as any).id);
+    if (ticketIds.length > 0) {
+      reviewTicketHistory = db.prepare(`
+        SELECT h.*, u.display_name as user_name
+        FROM review_ticket_history h
+        LEFT JOIN users u ON h.user_id = u.id
+        WHERE h.ticket_id IN (${ticketIds.map(() => '?').join(',')})
+        ORDER BY h.created_at ASC
+      `).all(...ticketIds).map((h: any) => ({
+        ...h,
+        details: h.details ? JSON.parse(h.details) : null
+      }));
+    }
+  }
+
+  const openReviewTickets = (reviewTickets as any[]).filter(
+    (t: any) => ['pending', 'acknowledged', 'reopened'].includes(t.status)
+  );
+  const invalidReviewTickets = (reviewTickets as any[]).filter(
+    (t: any) => t.status === 'invalid'
+  );
+
+  const reviewChecklistSteps: any[] = [];
+  for (const t of openReviewTickets) {
+    reviewChecklistSteps.push({
+      step_no: reviewChecklistSteps.length + 1,
+      ticket_id: t.id,
+      ticket_no: t.ticket_no,
+      round_name: t.round_name,
+      clause_number: t.clause_number,
+      clause_title: t.clause_title,
+      assignee_name: t.assignee_name,
+      assignee_role: t.assignee_role,
+      trigger_type: t.trigger_type,
+      trigger_reason: t.trigger_reason,
+      status: t.status,
+      acknowledged: !!t.acknowledged_at,
+      acknowledged_at: t.acknowledged_at || null,
+      required_action: t.status === 'pending' ? '【未签收】请责任人先签收再处理'
+        : t.status === 'acknowledged' ? '【处理中】责任人需给出通过/补资料/重新会签结论'
+        : t.status === 'reopened' ? '【重开】责任人需重新签收并处理'
+        : '待处理',
+      priority: t.trigger_type === 'import_override' || t.trigger_type === 'rollback' || t.trigger_type === 'reject_conclusion' ? 'high' : 'medium'
+    });
+  }
+
+  const ticketInvalidationReasons: any[] = [];
+  for (const t of invalidReviewTickets) {
+    ticketInvalidationReasons.push({
+      ticket_id: t.id,
+      ticket_no: t.ticket_no,
+      round_name: t.round_name,
+      clause_number: t.clause_number,
+      clause_title: t.clause_title,
+      assignee_name: t.assignee_name,
+      trigger_type: t.trigger_type,
+      original_reason: t.trigger_reason,
+      invalidation_reason: t.invalidated_reason,
+      invalidated_at: t.invalidated_at,
+      reopened_count: t.reopened_count,
+      old_conclusion: t.conclusion || null,
+      old_comment: t.conclusion_comment || null
+    });
+  }
+
   const exportData = {
     exported_at: new Date().toISOString(),
     contract: {
@@ -198,7 +281,7 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
       name: contract.name,
       description: contract.description,
       created_at: contract.created_at,
-      can_be_marked_complete: incompleteItems.length === 0
+      can_be_marked_complete: incompleteItems.length === 0 && openReviewTickets.length === 0
     },
     clauses: clauses.map((c: any) => ({
       ...c,
@@ -217,6 +300,34 @@ router.get('/contract/:id/export', requireRole('admin', 'legal'), (req: Request,
       })),
       incomplete_items: incompleteItems,
       invalidation_reasons: invalidationReasons
+    },
+    review_tickets: {
+      all_tickets: reviewTickets.map((t: any) => ({
+        ...t,
+        history: reviewTicketHistory.filter((h: any) => h.ticket_id === t.id)
+      })),
+      open_tickets: openReviewTickets,
+      invalid_tickets: invalidReviewTickets,
+      invalidation_reasons: ticketInvalidationReasons,
+      checklist: reviewChecklistSteps,
+      summary: {
+        total: reviewTickets.length,
+        open: openReviewTickets.length,
+        closed: (reviewTickets as any[]).filter((t: any) => t.status === 'closed').length,
+        reopened: (reviewTickets as any[]).filter((t: any) => t.status === 'reopened').length,
+        invalid: invalidReviewTickets.length,
+        pending: (reviewTickets as any[]).filter((t: any) => t.status === 'pending').length,
+        acknowledged: (reviewTickets as any[]).filter((t: any) => t.status === 'acknowledged').length,
+        by_trigger_type: {
+          import_override: (reviewTickets as any[]).filter((t: any) => t.trigger_type === 'import_override').length,
+          import_update: (reviewTickets as any[]).filter((t: any) => t.trigger_type === 'import_update').length,
+          rollback: (reviewTickets as any[]).filter((t: any) => t.trigger_type === 'rollback').length,
+          merge_version: (reviewTickets as any[]).filter((t: any) => t.trigger_type === 'merge_version').length,
+          reject_conclusion: (reviewTickets as any[]).filter((t: any) => t.trigger_type === 'reject_conclusion').length,
+          need_more_info: (reviewTickets as any[]).filter((t: any) => t.trigger_type === 'need_more_info').length,
+          admin_rereview: (reviewTickets as any[]).filter((t: any) => t.trigger_type === 'admin_rereview').length
+        }
+      }
     }
   };
 

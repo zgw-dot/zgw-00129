@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { authMiddleware, requireRole } from '../middleware';
 import { createAuditLog } from '../audit';
 import { handleClauseVersionChange } from './countersigns';
+import { createReviewTicketsForClause } from './reviewTickets';
 
 const router = Router();
 
@@ -356,6 +357,13 @@ router.post('/:id/import', requireRole('admin', 'legal'), (req: Request, res: Re
             'import_override', confirmReason, req.user!.userId, req.user!.role
           );
 
+          createReviewTicketsForClause(
+            existing.id, 'import_override',
+            `导入覆盖（v${existing.current_version}→v${newVersion}）：${confirmReason}`,
+            req.user!.userId, req.user!.role,
+            existing.current_version, newVersion, true
+          );
+
           updated.push({
             id: existing.id,
             clause_number: existing.clause_number,
@@ -391,6 +399,13 @@ router.post('/:id/import', requireRole('admin', 'legal'), (req: Request, res: Re
           handleClauseVersionChange(
             existing.id, existing.current_version, newVersion,
             'import_update', '导入更新', req.user!.userId, req.user!.role
+          );
+
+          createReviewTicketsForClause(
+            existing.id, 'import_update',
+            `导入更新条款（v${existing.current_version}→v${newVersion}）`,
+            req.user!.userId, req.user!.role,
+            existing.current_version, newVersion, true
           );
 
           updated.push({

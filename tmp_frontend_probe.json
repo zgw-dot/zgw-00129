@@ -1,0 +1,12 @@
+{
+  "menu_texts": [
+    "合同管理",
+    "我的会签",
+    "操作日志",
+    "导入格式说明"
+  ],
+  "body_contains_review_ticket": true,
+  "body_contains_ticket_word": true,
+  "my_countersigns_contains_review_ticket": false,
+  "my_countersigns_contains_ticket_word": false
+}
